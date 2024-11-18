@@ -28,7 +28,7 @@ const SellerProductUpload = () => {
   const [autocomplete, setAutocomplete] = useState(null);
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyAtQ_7W4jQRax2krWoIuEUKhQYV6en-jJ8", // Replace with your API key
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY, // Replace with your API key
     libraries: ["places"],
   });
 
