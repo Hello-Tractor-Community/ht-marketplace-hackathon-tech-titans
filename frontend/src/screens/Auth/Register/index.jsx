@@ -1,28 +1,33 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import logo from "../../../assets/logo.jpg";
+import useAxios from "../../../Hooks/useAxios";
+import { toast } from "react-toastify";
 
 const RegistrationPage = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    middleName: "",
-    userType: "buyer", // Default value
     email: "",
     password: "",
-    isActive: true,
+    userType: "buyer", // Default value
     companyDetails: {
       name: "",
       logo: "",
       description: "",
-      contactDetails: {
+    },
+    contactDetails: {
         phone: "",
         email: "",
-      },
     },
-    verified: false,
-    servicesOffered: [],
+    logo: null,
   });
+
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigation = useNavigate()
+
+  const { post } = useAxios();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -47,24 +52,64 @@ const RegistrationPage = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      companyDetails: {
-        ...prev.companyDetails,
-        contactDetails: {
-          ...prev.companyDetails.contactDetails,
-          [name]: value,
-        },
+      contactDetails: {
+        ...prev.contactDetails,
+        [name]: value,
       },
     }));
   };
 
-  const handleSubmit = (e) => {
+  const validateForm = () => {
+    const errors = {};
+    // Basic fields
+    if (!formData.firstName.trim()) errors.firstName = "First Name is required";
+    if (!formData.lastName.trim()) errors.lastName = "Last Name is required";
+    if (!formData.email.trim()) errors.email = "Email is required";
+    if (!formData.password.trim()) errors.password = "Password is required";
+
+    // Seller-specific fields
+    if (formData.userType === "seller") {
+      if (!formData.companyDetails.name.trim())
+        errors.companyName = "Company Name is required";
+      if (!formData.companyDetails.description.trim())
+        errors.companyDescription = "Description is required";
+      if (!formData.contactDetails.phone.trim())
+        errors.phone = "Phone Number is required";
+      if (!formData.contactDetails.email.trim())
+        errors.companyEmail = "Company Email is required";
+      if (!formData.logo) errors.logo = "Company logo is required";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleFileChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      logo: e.target.files[0], 
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Send `formData` to the backend
-    console.log("Form Data Submitted:", formData);
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
+    try {
+      console.log(formData)
+      const response = await post(`/api/register/sign-up`, formData);
+      setIsSubmitting(false);
+      toast.success(response.message)
+      navigation('/login')
+    } catch (e) {
+      setIsSubmitting(false);
+      toast.error(e.response.data.message);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center items-center px-4">
+    <div className="min-h-screen bg-gray-100 flex justify-center items-center px-4 py-8">
       <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-xl">
         {/* Logo */}
         <div className="flex justify-center mb-4">
@@ -72,8 +117,8 @@ const RegistrationPage = () => {
         </div>
 
         <h1 className="text-2xl font-bold text-center mb-6">Register</h1>
-        <form onSubmit={handleSubmit}>
-          {/* Step 1: Basic Details */}
+        <form>
+          {/* Basic Details */}
           <div className="mb-4">
             <label htmlFor="firstName" className="block text-gray-700 font-medium mb-2">
               First Name
@@ -86,8 +131,10 @@ const RegistrationPage = () => {
               onChange={handleChange}
               placeholder="Enter your first name"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sunsetBlaze"
-              required
             />
+            {formErrors.firstName && (
+              <p className="text-red-500 text-sm">{formErrors.firstName}</p>
+            )}
           </div>
           <div className="mb-4">
             <label htmlFor="lastName" className="block text-gray-700 font-medium mb-2">
@@ -101,8 +148,10 @@ const RegistrationPage = () => {
               onChange={handleChange}
               placeholder="Enter your last name"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sunsetBlaze"
-              required
             />
+            {formErrors.lastName && (
+              <p className="text-red-500 text-sm">{formErrors.lastName}</p>
+            )}
           </div>
           <div className="mb-4">
             <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
@@ -116,8 +165,10 @@ const RegistrationPage = () => {
               onChange={handleChange}
               placeholder="Enter your email"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sunsetBlaze"
-              required
             />
+            {formErrors.email && (
+              <p className="text-red-500 text-sm">{formErrors.email}</p>
+            )}
           </div>
           <div className="mb-4">
             <label htmlFor="password" className="block text-gray-700 font-medium mb-2">
@@ -131,8 +182,10 @@ const RegistrationPage = () => {
               onChange={handleChange}
               placeholder="Enter your password"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sunsetBlaze"
-              required
             />
+            {formErrors.password && (
+              <p className="text-red-500 text-sm">{formErrors.password}</p>
+            )}
           </div>
           <div className="mb-4">
             <label htmlFor="userType" className="block text-gray-700 font-medium mb-2">
@@ -144,17 +197,15 @@ const RegistrationPage = () => {
               value={formData.userType}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sunsetBlaze"
-              required
             >
               <option value="buyer">Buyer</option>
               <option value="seller">Seller</option>
             </select>
           </div>
 
-          {/* Step 2: Seller-Specific Details */}
+          {/* Seller-Specific Fields */}
           {formData.userType === "seller" && (
-            <div className="mt-6">
-              <h2 className="text-lg font-semibold mb-4">Company Details</h2>
+            <div>
               <div className="mb-4">
                 <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
                   Company Name
@@ -168,20 +219,24 @@ const RegistrationPage = () => {
                   placeholder="Enter company name"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sunsetBlaze"
                 />
+                {formErrors.companyName && (
+                  <p className="text-red-500 text-sm">{formErrors.companyName}</p>
+                )}
               </div>
               <div className="mb-4">
                 <label htmlFor="logo" className="block text-gray-700 font-medium mb-2">
-                  Company Logo (URL)
+                  Company Logo
                 </label>
                 <input
-                  type="text"
+                  type="file"
                   id="logo"
                   name="logo"
-                  value={formData.companyDetails.logo}
-                  onChange={handleCompanyChange}
-                  placeholder="Enter logo URL"
+                  onChange={handleFileChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sunsetBlaze"
                 />
+                {formErrors.logo && (
+                  <p className="text-red-500 text-sm">{formErrors.logo}</p>
+                )}
               </div>
               <div className="mb-4">
                 <label htmlFor="description" className="block text-gray-700 font-medium mb-2">
@@ -195,6 +250,9 @@ const RegistrationPage = () => {
                   placeholder="Enter company description"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sunsetBlaze"
                 ></textarea>
+                {formErrors.companyDescription && (
+                  <p className="text-red-500 text-sm">{formErrors.companyDescription}</p>
+                )}
               </div>
               <div className="mb-4">
                 <label htmlFor="phone" className="block text-gray-700 font-medium mb-2">
@@ -204,12 +262,14 @@ const RegistrationPage = () => {
                   type="text"
                   id="phone"
                   name="phone"
-                  value={formData.companyDetails.contactDetails.phone}
+                  value={formData.contactDetails.phone}
                   onChange={handleContactChange}
                   placeholder="Enter phone number"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sunsetBlaze"
-                  required
                 />
+                {formErrors.phone && (
+                  <p className="text-red-500 text-sm">{formErrors.phone}</p>
+                )}
               </div>
               <div className="mb-4">
                 <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
@@ -219,12 +279,14 @@ const RegistrationPage = () => {
                   type="email"
                   id="email"
                   name="email"
-                  value={formData.companyDetails.contactDetails.email}
+                  value={formData.contactDetails.email}
                   onChange={handleContactChange}
                   placeholder="Enter company email"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sunsetBlaze"
-                  required
                 />
+                {formErrors.companyEmail && (
+                  <p className="text-red-500 text-sm">{formErrors.companyEmail}</p>
+                )}
               </div>
             </div>
           )}
@@ -234,8 +296,9 @@ const RegistrationPage = () => {
             <button
               type="submit"
               className="w-full bg-sunsetBlaze text-white py-2 px-4 rounded-lg hover:bg-red-600 transition duration-300"
+              onClick={handleSubmit}
             >
-              Register
+              {isSubmitting ? "Submitting..." : "Register"}
             </button>
           </div>
         </form>

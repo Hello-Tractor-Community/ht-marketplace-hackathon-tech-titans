@@ -1,4 +1,8 @@
 import { Routes, Route } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 import Navbar from './Layout/Navbar';
 import Footer from './Layout/Footer';
 import HomePage from './screens/Buyers/Home/Home';
@@ -9,14 +13,16 @@ import MessagingPage from './screens/users/Messaging';
 import TractorListing from './screens/Buyers/TractorListing/TractorListing';
 import SellerProductUpload from './screens/Sellers/MyProduct/Add';
 import SellerProductTable from './screens/Sellers/MyProduct/list';
+import Profile from './screens/users/Profile/Profile';
 const App = () => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navbar */}
       <Navbar />
 
+          <ToastContainer />
       {/* Main Content */}
-      <div className="flex-grow">
+      <div className="flex-grow ">
         <Routes>
           {/* Add your routes here */}
           <Route path="/" element={<HomePage />} />
@@ -27,6 +33,7 @@ const App = () => {
           <Route path="/listings" element={<TractorListing />} />
           <Route path="/seller/product/add" element={<SellerProductUpload />} />
           <Route path="/seller/products" element={<SellerProductTable />} />
+          <Route path='/profile' element={<Profile/>}/>
 
         </Routes>
       </div>

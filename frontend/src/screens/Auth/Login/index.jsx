@@ -1,20 +1,25 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import logo from "../../../assets/logo.jpg"; // Update the path to your logo image
+import logo from "../../../assets/logo.jpg"; 
+import useAxios from "../../../hooks/useAxios";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const{post} =useAxios()
 
   const handleLogin = (e) => {
     e.preventDefault();
-    console.log("Email:", email);
-    console.log("Password:", password);
+    try {
+      const response = await post('')
+    } catch (err) {
+      
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center items-center px-4">
+    <div className="min-h-screen bg-gray-100 flex justify-center items-center px-4 py-8">
       {/* Login Card */}
       <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-sm">
         {/* Logo */}
