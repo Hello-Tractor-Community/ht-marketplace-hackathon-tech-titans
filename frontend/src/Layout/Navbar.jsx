@@ -1,12 +1,30 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from '../assets/logo.jpg';
 
-const Navbar = ({ user }) => {
+const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
-  // Links based on userType
+  const getUserData = async () => {
+    try {
+      const storedUser= localStorage.getItem('user_data');
+      if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    } else {
+      setUser(null)
+    }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    getUserData();
+  }, []);
+
+  // Links for authenticated users based on userType
   const adminLinks = [
     { to: "/dashboard", label: "Dashboard" },
     { to: "/users", label: "Users" },
@@ -25,13 +43,22 @@ const Navbar = ({ user }) => {
     { to: "/messages", label: "Messages" },
   ];
 
+  // Links for unauthenticated users
+  const guestLinks = [
+    { to: "/", label: "Home" },
+    {to:'/listings',label: "Listings"},
+    { to: "/login", label: "Login" },
+    { to: "/register", label: "Register" },
+  ];
+
   // Determine which links to render based on userType
-  const userLinks =
-    user?.userType === "admin"
+  const userLinks = user
+    ? user.userType === "admin"
       ? adminLinks
-      : user?.userType === "seller"
+      : user.userType === "seller"
       ? sellerLinks
-      : buyerLinks; // Default to buyer if userType is undefined or not matched
+      : buyerLinks // Default to buyer links
+    : guestLinks; // Default to guest links if no user
 
   return (
     <nav className="bg-plum text-white">
@@ -51,13 +78,14 @@ const Navbar = ({ user }) => {
               {link.label}
             </Link>
           ))}
-          {/* Avatar */}
-          <div
-            className="cursor-pointer rounded-full bg-white w-8 h-8 flex items-center justify-center text-plum font-bold"
-            onClick={() => navigate('/profile')} // Navigate to profile
-          >
-            {user?.firstName?.charAt(0).toUpperCase() || "U"}
-          </div>
+          {user && (
+            <div
+              className="cursor-pointer rounded-full bg-white w-8 h-8 flex items-center justify-center text-plum font-bold"
+              onClick={() => navigate('/profile')} // Navigate to profile
+            >
+              {user?.firstName?.charAt(0).toUpperCase() || "U"}
+            </div>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -107,16 +135,17 @@ const Navbar = ({ user }) => {
               {link.label}
             </Link>
           ))}
-          {/* Avatar in Mobile */}
-          <div
-            className="cursor-pointer rounded-full bg-white w-8 h-8 flex items-center justify-center text-plum font-bold"
-            onClick={() => {
-              setIsOpen(false); // Close mobile menu
-              navigate('/profile'); // Navigate to profile
-            }}
-          >
-            {user?.firstName?.charAt(0).toUpperCase() || "U"}
-          </div>
+          {user && (
+            <div
+              className="cursor-pointer rounded-full bg-white w-8 h-8 flex items-center justify-center text-plum font-bold"
+              onClick={() => {
+                setIsOpen(false); // Close mobile menu
+                navigate('/profile'); // Navigate to profile
+              }}
+            >
+              {user?.firstName?.charAt(0).toUpperCase() || "U"}
+            </div>
+          )}
         </div>
       )}
     </nav>

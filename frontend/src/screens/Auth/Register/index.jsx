@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import logo from "../../../assets/logo.jpg";
 import useAxios from "../../../Hooks/useAxios";
 import { toast } from "react-toastify";
+import CryptoJS from "crypto-js";
 
 const RegistrationPage = () => {
   const [formData, setFormData] = useState({
@@ -26,6 +27,7 @@ const RegistrationPage = () => {
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigation = useNavigate()
+  const encryptionKey = "bas8b-76d-87ya-s8u8di-s87h8-n8y9hi-s9y7-a99dh-i8yh98ea";
 
   const { post } = useAxios();
 
@@ -91,6 +93,17 @@ const RegistrationPage = () => {
     }));
   };
 
+  const handleSendOTP = (email) => {
+    // Encrypt the email
+    const iv = CryptoJS.lib.WordArray.random(16).toString(CryptoJS.enc.Hex); // Random IV
+    const encryptedEmail = CryptoJS.AES.encrypt(email, encryptionKey, {
+      iv: CryptoJS.enc.Hex.parse(iv),
+    }).toString();
+
+    // Navigate to the OTP page with encrypted email and IV in the URL
+    navigation(`/otp/verify?user=${encodeURIComponent(encryptedEmail)}&iv=${encodeURIComponent(iv)}`);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -99,9 +112,11 @@ const RegistrationPage = () => {
     try {
       console.log(formData)
       const response = await post(`/api/register/sign-up`, formData);
+      console.log(response)
       setIsSubmitting(false);
+      handleSendOTP(formData.email); 
       toast.success(response.message)
-      navigation('/login')
+      // navigation('/login') 
     } catch (e) {
       setIsSubmitting(false);
       toast.error(e.response.data.message);
