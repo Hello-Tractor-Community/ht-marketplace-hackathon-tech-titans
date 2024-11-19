@@ -1,24 +1,63 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import Logo from '../assets/logo.jpg'
-const Navbar = () => {
+import { Link, useNavigate } from "react-router-dom";
+import Logo from '../assets/logo.jpg';
+
+const Navbar = ({ user }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+
+  // Links based on userType
+  const adminLinks = [
+    { to: "/dashboard", label: "Dashboard" },
+    { to: "/users", label: "Users" },
+    { to: "/settings", label: "Settings" },
+  ];
+
+  const sellerLinks = [
+    { to: "/my-listings", label: "My Listings" },
+    { to: "/add-listing", label: "Add Listing" },
+    { to: "/messages", label: "Messages" },
+  ];
+
+  const buyerLinks = [
+    { to: "/listings", label: "Listings" },
+    { to: "/my-orders", label: "My Orders" },
+    { to: "/messages", label: "Messages" },
+  ];
+
+  // Determine which links to render based on userType
+  const userLinks =
+    user?.userType === "admin"
+      ? adminLinks
+      : user?.userType === "seller"
+      ? sellerLinks
+      : buyerLinks; // Default to buyer if userType is undefined or not matched
 
   return (
     <nav className="bg-plum text-white">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         {/* Logo */}
         <div className="flex items-center space-x-2">
-      <img src={Logo} alt="Hello Tractor Logo" className="h-8 w-auto" />
-      <Link to="/" className="text-xl font-bold">Hello Tractor</Link>
-    </div>
+          <img src={Logo} alt="Hello Tractor Logo" className="h-8 w-auto" />
+          <Link to="/" className="text-xl font-bold">
+            Hello Tractor
+          </Link>
+        </div>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex space-x-6">
-          <Link to="/" className="hover:text-sunsetBlaze">Home</Link>
-          <Link to="/listings" className="hover:text-sunsetBlaze">Listings</Link>          
-          <Link to="/messages" className="hover:text-sunsetBlaze">Message</Link>
-          <Link to="/login" className="hover:text-sunsetBlaze">Login</Link>
+        <div className="hidden md:flex space-x-6 items-center">
+          {userLinks.map((link) => (
+            <Link key={link.to} to={link.to} className="hover:text-sunsetBlaze">
+              {link.label}
+            </Link>
+          ))}
+          {/* Avatar */}
+          <div
+            className="cursor-pointer rounded-full bg-white w-8 h-8 flex items-center justify-center text-plum font-bold"
+            onClick={() => navigate('/profile')} // Navigate to profile
+          >
+            {user?.firstName?.charAt(0).toUpperCase() || "U"}
+          </div>
         </div>
 
         {/* Mobile Menu Button */}
@@ -63,9 +102,21 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-plum text-white space-y-2 px-4 py-4">
-          <Link to="/" className="block hover:text-sunsetBlaze">Home</Link>
-          <Link to="/listings" className="block hover:text-sunsetBlaze">Listings</Link>
-          <Link to="/login" className="block hover:text-sunsetBlaze">Login</Link>
+          {userLinks.map((link) => (
+            <Link key={link.to} to={link.to} className="block hover:text-sunsetBlaze">
+              {link.label}
+            </Link>
+          ))}
+          {/* Avatar in Mobile */}
+          <div
+            className="cursor-pointer rounded-full bg-white w-8 h-8 flex items-center justify-center text-plum font-bold"
+            onClick={() => {
+              setIsOpen(false); // Close mobile menu
+              navigate('/profile'); // Navigate to profile
+            }}
+          >
+            {user?.firstName?.charAt(0).toUpperCase() || "U"}
+          </div>
         </div>
       )}
     </nav>

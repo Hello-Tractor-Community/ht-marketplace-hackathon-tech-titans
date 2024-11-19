@@ -21,7 +21,6 @@ const LoginPage = ({back='/'}) => {
     }
   }
   const handleLogin = async (e) => {
-    console.log('Login')
     e.preventDefault();
     try {
       const response = await post('/api/auth/login', { email, password })

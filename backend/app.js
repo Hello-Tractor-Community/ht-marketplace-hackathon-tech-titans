@@ -15,6 +15,7 @@ const initializePassport = require('./middleware/PASSPORTCONFIG');
 const { connectToMongoDB } = require('./utils/DbConnection');
 const Login = require('./AUTH/Login');
 const CheckSession = require('./AUTH/CheckSession');
+const VerifySignUpToken = require('./AUTH/AUTHENTICATESIGNUPTOKEN');
 const signUp = require('./routes/Users');
 const Product =require('./routes/Product')
 // const checkSession = require('./middleware/check-session');
@@ -26,8 +27,8 @@ connectToMongoDB();
 const app = express();
 
 app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json()); // Handles JSON body
+app.use(express.urlencoded({ extended: true })); 
 app.use(cookieParser());
 app.use(cors({ origin: '*' })); 
 
@@ -45,6 +46,7 @@ app.use(passport.session());
 //  add routes here below
 app.use('/api/auth/check-session',CheckSession);
 app.use('/api/auth/login', Login);
+app.use('/api/auth/verify-sign-up-token', VerifySignUpToken);
 app.use('/api/register', signUp);
 app.use('/api/product', Product);
 const mongoUri = process.env.MONGO_URI || '';

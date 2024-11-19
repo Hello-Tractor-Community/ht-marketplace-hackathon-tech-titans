@@ -40,6 +40,10 @@ const UserSchema = new mongoose.Schema({
         type:Number,
         required:true
     },
+    authTokenVerified:{
+        type:Boolean,
+        default:false
+    },
     resetPasswordToken :{
         type:Number,
         required:false,

@@ -1,6 +1,7 @@
 const Product = require('../../models/Product');
 
 const CreateProduct = async (req, res) => {
+    console.log('user',req.user);
     try {
         const {
             name,
@@ -36,7 +37,7 @@ const CreateProduct = async (req, res) => {
             });
         }
 
-        let { id } = req.user;
+        let { _id } = req.user;
 
         // Parse and validate location field
         let parsedLocation;
@@ -100,7 +101,7 @@ const CreateProduct = async (req, res) => {
             fuelCapacity,
             transmissionType,
             warranty,
-            createdBy: id,
+            createdBy: _id,
             usageHour,
             typeProduct
         });
