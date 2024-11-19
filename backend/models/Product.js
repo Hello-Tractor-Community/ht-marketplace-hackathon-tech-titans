@@ -23,10 +23,16 @@ const ProductModel = new mongoose.Schema(
             default:false,
             required:true
         },
-        type:{
-            type:String,
-            required:false,
-            enum:['tractor', 'spare']
+        typeProduct: {
+            type: String,
+            required: true,
+            enum: ['tractor', 'spare'], // Allowed values
+            validate: {
+                validator: function (v) {
+                    return ['tractor', 'spare'].includes(v.toLowerCase());
+                },
+                message: 'Invalid typeProduct value. Must be either "tractor" or "spare".',
+            },
         },
         usageHour:{
             type:Number,

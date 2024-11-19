@@ -18,6 +18,8 @@ const CreateProduct = async (req, res) => {
             fuelCapacity,
             transmissionType,
             warranty,
+            usageHour,
+            typeProduct
         } = req.body;
 
         // Validation: Check if all required fields are present
@@ -99,6 +101,8 @@ const CreateProduct = async (req, res) => {
             transmissionType,
             warranty,
             createdBy: id,
+            usageHour,
+            typeProduct
         });
 
         // Save product to DB

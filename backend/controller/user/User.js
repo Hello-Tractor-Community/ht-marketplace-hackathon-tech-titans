@@ -71,14 +71,14 @@ const CreateUser = async (req, res) => {
             companyDetails.description
                 ? (data2.companyDetails.description = companyDetails.description)
                 : (error2.details = 'Description required');
-            if (req.file) {
-                data2.companyDetails.logo = `/uploads/sellers/${req.file.filename}`;
-                console.log(data)
-            } else {
-                console.log('image:', req.files);
-                await User.findByIdAndDelete(newUser._id);
-                return res.status(400).json({ message: 'Logo is required for seller profile.' });
-            }
+            // if (req.file) {
+            //     data2.companyDetails.logo = `/uploads/sellers/${req.file.filename}`;
+            //     console.log(data)
+            // } else {
+            //     console.log('image:', req.files);
+            //     await User.findByIdAndDelete(newUser._id);
+            //     return res.status(400).json({ message: 'Logo is required for seller profile.' });
+            // }
             data2.user = newUser._id;
             contactDetails.phone
                 ? (data2.contactDetails.phone = contactDetails.phone)
