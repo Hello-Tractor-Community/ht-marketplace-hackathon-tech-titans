@@ -82,6 +82,7 @@ const CreateProduct = async (req, res) => {
                 });
             }
         }
+        console.log('_id',_id)
 
         // Create product
         const product = new Product({

@@ -94,6 +94,11 @@ const ProductModel = new mongoose.Schema(
             type:Boolean,
             required:true,
             default:true
+        },
+        createdBy:{
+            type:mongoose.Types.ObjectId,
+            required:true,
+            ref:'User'
         }
     },
     {
