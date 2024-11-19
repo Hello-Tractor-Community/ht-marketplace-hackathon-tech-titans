@@ -1,56 +1,59 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 
 router.post('/:email/:token', async(req,res) =>{
-    try{
-        const {email, token} =req.params;
-        console.log(`Email: ${email}`);
-        console.log(`Token: ${token}`);
+    try {
+        const { email, token } = req.params;
 
         if (!email || !token) {
             return res.status(400).json({ success: false, message: 'Email or token is missing' });
         }
-        console.log(21)
-        const user = await User.find({email});
-        console.log(333)
-        if(!user){
-            return res.status(404).json({message:'No user found'});
-        };
 
-       console.log(user)
+        // Find the user by email
+        const user = await User.findOne({ email });
 
-        if(token.toString() !== user[0].authToken.toString()){
-            console.log(token)
-            console.log(user[0].authToken)
-            return res.status(403).json({message:'Wrong Token'})
+        if (!user) {
+            return res.status(404).json({ message: 'No user found' });
         }
-        try {
-            const data = {
-                authTokenVerified: true
-            };
-        
-            // Update the user document based on email
-            const updatedUser = await User.findOneAndUpdate(
-                { email: email }, // Match document where email matches
-                data,             // Fields to update
-                { new: true }     // Return the updated document
-            );
-        
-            if (!updatedUser) {
-                console.log('User not found with the provided email.');
-            } else {
-                console.log('User updated successfully:', updatedUser);
-                return res.status(200).json({message:'User token verified'})
-            }
-        } catch (err) {
-            console.error('Error verifying token:', err);
-        }
-        
 
-    }catch(err){
-        console.log('Error verifying token');
-        res.status(500).json({message:'Error verifying token'});
+        // Verify the provided token matches the user's authToken
+        if (token.toString() !== user.authToken.toString()) {
+            return res.status(403).json({ message: 'Wrong Token' });
+        }
+
+        // Update authTokenVerified to true
+        const updatedUser = await User.findOneAndUpdate(
+            { email },
+            { authTokenVerified: true },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'Failed to update user. User not found.' });
+        }
+
+        // Generate JWT token
+        const tokenPayload = { id: updatedUser._id, email: updatedUser.email };
+        const jwtToken = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '84h' });
+
+        res.status(200).json({
+            message: 'User token verified successfully',
+            token: jwtToken,
+            user: {
+                id: updatedUser._id,
+                email: updatedUser.email,
+                userType: updatedUser.userType,
+                isActive: updatedUser.isActive,
+            },
+        });
+    } catch (err) {
+        console.error('Error verifying token:', err);
+        res.status(500).json({ message: 'Error verifying token' });
     }
 });
 
