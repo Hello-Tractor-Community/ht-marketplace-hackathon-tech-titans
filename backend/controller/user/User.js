@@ -20,12 +20,32 @@ const upload = multer({ storage });
 
 // Middleware to handle file upload
 const uploadSingleImage = upload.single('logo');
-
+let newUser;
 const CreateUser = async (req, res) => {
-    const { firstName, lastName, middleName, email, password, userType, companyDetails, contactDetails } = req.body;
+    const { firstName, lastName, middleName, email, password, userType } = req.body;
 
     try {
         console.log('Received request to create user', req.body);
+
+        // Parse companyDetails and contactDetails
+        let companyDetails = {};
+        let contactDetails = {};
+
+        if (req.body.companyDetails) {
+            try {
+                companyDetails = JSON.parse(req.body.companyDetails);
+            } catch (error) {
+                return res.status(400).json({ message: 'Invalid companyDetails format. Must be a valid JSON object.' });
+            }
+        }
+
+        if (req.body.contactDetails) {
+            try {
+                contactDetails = JSON.parse(req.body.contactDetails);
+            } catch (error) {
+                return res.status(400).json({ message: 'Invalid contactDetails format. Must be a valid JSON object.' });
+            }
+        }
 
         // Check if the user already exists
         const existingUser = await User.findOne({ email });
@@ -53,7 +73,7 @@ const CreateUser = async (req, res) => {
         console.log('Creating user:', data);
 
         // Create the user
-        const newUser = await User.create(data);
+        newUser = await User.create(data);
 
         // Additional data creation for specific user types
         const data2 = { companyDetails: {}, contactDetails: {} };
@@ -71,14 +91,14 @@ const CreateUser = async (req, res) => {
             companyDetails.description
                 ? (data2.companyDetails.description = companyDetails.description)
                 : (error2.details = 'Description required');
+            
             // if (req.file) {
             //     data2.companyDetails.logo = `/uploads/sellers/${req.file.filename}`;
-            //     console.log(data)
             // } else {
-            //     console.log('image:', req.files);
             //     await User.findByIdAndDelete(newUser._id);
             //     return res.status(400).json({ message: 'Logo is required for seller profile.' });
             // }
+
             data2.user = newUser._id;
             contactDetails.phone
                 ? (data2.contactDetails.phone = contactDetails.phone)
@@ -86,6 +106,11 @@ const CreateUser = async (req, res) => {
             contactDetails.email
                 ? (data2.contactDetails.email = contactDetails.email)
                 : (error2.email = 'Email required');
+
+            if (Object.keys(error2).length > 0) {
+                await User.findByIdAndDelete(newUser._id);
+                return res.status(400).json({ message: 'Provide all required information to complete seller profile.', errors: error2 });
+            }
 
             const seller = await Agent.create(data2);
             console.log('seller', seller);
@@ -99,6 +124,7 @@ const CreateUser = async (req, res) => {
         // Return success response
         res.status(201).json({ message: 'User profile created successfully', data: newUser });
     } catch (error) {
+        if (newUser) await User.findByIdAndDelete(newUser._id);
         console.error('Error creating user profile:', error.message);
         res.status(500).json({ message: 'Error creating user profile', error: error.message });
     }
