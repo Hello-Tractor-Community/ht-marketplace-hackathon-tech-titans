@@ -35,6 +35,18 @@ const loginAuditsSchema = new mongoose.Schema(
 
 loginAuditsSchema.index({ user_id: 1 });
 
+loginAuditsSchema.methods.activate = async function(){
+  this.isActive =true;
+  this.save();
+  return this;
+};
+
+loginAuditsSchema.methods.deactivate = async function(){
+  this.isActive =false;
+  this.save();
+  return this;
+};
+
 const LoginAudits = mongoose.model("LoginAudits", loginAuditsSchema);
 
 module.exports = LoginAudits;

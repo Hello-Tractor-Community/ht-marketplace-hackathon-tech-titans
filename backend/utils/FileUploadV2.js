@@ -1,30 +1,34 @@
 const multer = require('multer');
 const path = require('path');
 
-// Multer configuration
+// Storage configuration
 const storage = multer.diskStorage({
-    destination: (req, file, callback) => {
-        callback(null, './uploads/agents/'); // Directory to save agent images
+    destination: (req, file, cb) => {
+        cb(null, './uploads/sellers'); // Ensure this path exists and is writable
     },
-    filename: (req, file, callback) => {
-        callback(null, Date.now() + path.extname(file.originalname)); // Generate unique filename
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname)); // Unique filename
     },
 });
 
+// File filter (optional: to accept only specific file types)
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Invalid file type. Only JPEG, PNG, and GIF are allowed.'), false);
+    }
+};
+
+// Multer instance
 const upload = multer({
     storage,
-    fileFilter: (req, file, callback) => {
-        // Only accept specific file types
-        const allowedFileTypes = /jpeg|jpg|png/;
-        const mimeType = allowedFileTypes.test(file.mimetype);
-        const extName = allowedFileTypes.test(path.extname(file.originalname).toLowerCase());
-
-        if (mimeType && extName) {
-            return callback(null, true);
-        }
-        callback(new Error('Only images (jpeg, jpg, png) are allowed'));
-    },
-    limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
+    limits: { fileSize: 5 * 1024 * 1024 }, // Max file size: 5MB
+    fileFilter,
 });
 
-module.exports = upload.single('logo'); // Expect a single file with the field name 'logo'
+// Middleware for single file upload
+const uploadSingleImage = upload.single('logo');
+
+module.exports = { uploadSingleImage };

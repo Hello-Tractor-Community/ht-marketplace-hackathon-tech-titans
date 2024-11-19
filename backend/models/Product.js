@@ -25,17 +25,17 @@ const ProductModel = new mongoose.Schema(
         },
         type:{
             type:String,
-            required:true,
+            required:false,
             enum:['tractor', 'spare']
         },
         usageHour:{
             type:Number,
-            required:true,
-            min:0
+            required:false,
+           
         },
         images: {
             type: [String],
-            required: true
+            required: false
         },
         description:{
             type:String,

@@ -26,20 +26,29 @@ const CreateProduct = async (req, res) => {
             !price ||
             !location ||
             !availability ||
-            !description ||
-            !req.files || req.files.length === 0
+            !description
         ) {
             return res.status(400).json({
                 success: false,
-                message: 'Missing required fields. Ensure all fields are provided and images are uploaded.',
+                message: 'Missing required fields. Ensure all fields are provided.',
             });
         }
-        let {id} =req.user; 
+
+        let { id } = req.user;
+
         // Parse and validate location field
         let parsedLocation;
         try {
-            parsedLocation = JSON.parse(location);
-            if (!parsedLocation.longitude || !parsedLocation.latitude || !parsedLocation.placeName) {
+            // If location is a string, parse it; otherwise, assume it's already an object
+            parsedLocation = typeof location === 'string' ? JSON.parse(location) : location;
+
+            if (
+                !parsedLocation ||
+                typeof parsedLocation !== 'object' ||
+                typeof parsedLocation.longitude !== 'number' ||
+                typeof parsedLocation.latitude !== 'number' ||
+                typeof parsedLocation.placeName !== 'string'
+            ) {
                 throw new Error('Invalid location format. Include longitude, latitude, and placeName.');
             }
         } catch (error) {
@@ -53,7 +62,9 @@ const CreateProduct = async (req, res) => {
         let parsedDimensions;
         if (dimensions) {
             try {
-                parsedDimensions = JSON.parse(dimensions);
+                // If dimensions is a string, parse it; otherwise, assume it's already an object
+                parsedDimensions = typeof dimensions === 'string' ? JSON.parse(dimensions) : dimensions;
+
                 if (
                     typeof parsedDimensions.length !== 'number' ||
                     typeof parsedDimensions.width !== 'number' ||
@@ -69,15 +80,13 @@ const CreateProduct = async (req, res) => {
             }
         }
 
-        // Handle images
-        const images = req.files.map((file) => file.path);
         // Create product
         const product = new Product({
             name,
             price,
             location: parsedLocation,
             availability,
-            images,
+            images: null, // Adjust this to handle uploaded images
             description,
             modelNumber,
             brand,
@@ -89,13 +98,14 @@ const CreateProduct = async (req, res) => {
             fuelCapacity,
             transmissionType,
             warranty,
-            createdBy:id
+            createdBy: id,
         });
 
         // Save product to DB
         await product.save();
         res.status(201).json({ success: true, product });
     } catch (error) {
+        console.error('Error creating product:', error);
         res.status(400).json({ success: false, message: error.message });
     }
 };

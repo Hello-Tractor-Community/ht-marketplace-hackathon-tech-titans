@@ -16,6 +16,19 @@ const CustomerModel = new mongoose.Schema(
     }
 );
 
+CustomerModel.methods.activate = async function(){
+    this.isActive = true;
+    this.save();
+    return this;
+};
+
+
+CustomerModel.methods.deactivate = async function(){
+    this.isActive =false;
+    this.save();
+    return this;
+};
+
 
 const Customer = new mongoose.model('Customer', CustomerModel);
 
