@@ -1,20 +1,31 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../../../assets/logo.jpg"; 
-import useAxios from "../../../hooks/useAxios";
+import useAxios from "../../../Hooks/useAxios";
+import { toast } from "react-toastify";
 
-const LoginPage = () => {
+const LoginPage = ({back='/'}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const{post} =useAxios()
+  const { post } = useAxios()
+  const navigate = useNavigate()
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
+    console.log('Login')
     e.preventDefault();
     try {
-      const response = await post('')
+      const response = await post('/api/auth/login', { email, password })
+      toast.success(response.message)
+      console.log(response.user_data.userType)
+      localStorage.setItem('access_token', response.token)
+      if (response.user_data.userType === 'buyer') {
+        navigate(back)
+      }
+      console.log(response)
     } catch (err) {
-      
+      // toast.error(err.response.data.message)
+      console.error(err)
     }
   };
 
