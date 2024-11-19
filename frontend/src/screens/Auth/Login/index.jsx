@@ -8,28 +8,35 @@ const LoginPage = ({back='/'}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { post } = useAxios()
+  const { post,get } = useAxios()
   const navigate = useNavigate()
 
+  
+  const checkSession = async() => {
+    try {
+      const response = await get('/api/auth/check-session', { useAuth: true })
+      localStorage.setItem('user_data', JSON.stringify(response.user))
+    } catch(err) {
+      console.error(err)
+    }
+  }
   const handleLogin = async (e) => {
     console.log('Login')
     e.preventDefault();
     try {
       const response = await post('/api/auth/login', { email, password })
       toast.success(response.message)
-      console.log(response.user_data.userType)
       localStorage.setItem('access_token', response.token)
+      await checkSession()
       if (response.user_data.userType === 'buyer') {
         navigate(back)
       }
-      console.log(response)
     } catch (err) {
-      // toast.error(err.response.data.message)
-      console.error(err)
+      toast.error(err.response.data.message)
     }
   };
 
-  return (
+  return ( 
     <div className="min-h-screen bg-gray-100 flex justify-center items-center px-4 py-8">
       {/* Login Card */}
       <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-sm">

@@ -14,11 +14,30 @@ import TractorListing from './screens/Buyers/TractorListing/TractorListing';
 import SellerProductUpload from './screens/Sellers/MyProduct/Add';
 import SellerProductTable from './screens/Sellers/MyProduct/list';
 import Profile from './screens/users/Profile/Profile';
+import { useEffect, useState } from 'react';
 const App = () => {
+  const [user, setUser] = useState({})
+  
+  const getUserData = async () => {
+    try {
+    const userJson = localStorage.getItem('user_data')
+      const userData = userJson ? JSON.parse(userJson) : null;
+      setUser(userData)
+    } catch (err) {
+      console.error(err)
+    }
+    
+  }
+
+  useEffect(() => {
+    getUserData()
+  }, [])
+  
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navbar */}
-      <Navbar />
+      <Navbar user={user} />
 
           <ToastContainer />
       {/* Main Content */}
