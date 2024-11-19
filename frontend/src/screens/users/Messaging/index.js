@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { FiSend, FiArrowLeft } from "react-icons/fi"; // Icons for sending and navigation
-import { BsEmojiSmile } from "react-icons/bs"; // Emoji icon
-import EmojiPicker from "emoji-picker-react"; // Install using `npm install emoji-picker-react`
+import { FiSend, FiArrowLeft } from "react-icons/fi"; 
+import { BsEmojiSmile } from "react-icons/bs"; 
+import EmojiPicker from "emoji-picker-react"; 
 import HT_Icons_Orange from '../../../assets/Sunset Blaze/HT_ICONS_ORANGE-42.png'
 
 const MessagingPage = () => {

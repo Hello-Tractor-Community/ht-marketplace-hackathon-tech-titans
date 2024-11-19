@@ -7,6 +7,8 @@ import RegistrationPage from './screens/Auth/Register';
 import ProductDetailsPage from './screens/Buyers/ProductDetails';
 import MessagingPage from './screens/users/Messaging';
 import TractorListing from './screens/Buyers/TractorListing/TractorListing';
+import SellerProductUpload from './screens/Sellers/MyProduct/Add';
+import SellerProductTable from './screens/Sellers/MyProduct/list';
 const App = () => {
   return (
     <div className="flex flex-col min-h-screen">
@@ -23,6 +25,8 @@ const App = () => {
           <Route path="/product/:id" element={<ProductDetailsPage />} />
           <Route path="/messages" element={<MessagingPage />} />
           <Route path="/listings" element={<TractorListing />} />
+          <Route path="/seller/product/add" element={<SellerProductUpload />} />
+          <Route path="/seller/products" element={<SellerProductTable />} />
 
         </Routes>
       </div>

@@ -16,9 +16,8 @@ const Navbar = () => {
         {/* Desktop Menu */}
         <div className="hidden md:flex space-x-6">
           <Link to="/" className="hover:text-sunsetBlaze">Home</Link>
-          <Link to="/about" className="hover:text-sunsetBlaze">About</Link>
-          <Link to="/listings" className="hover:text-sunsetBlaze">Listings</Link>
-          <Link to="/contact" className="hover:text-sunsetBlaze">Contact</Link>
+          <Link to="/listings" className="hover:text-sunsetBlaze">Listings</Link>          
+          <Link to="/messages" className="hover:text-sunsetBlaze">Message</Link>
           <Link to="/login" className="hover:text-sunsetBlaze">Login</Link>
         </div>
 
@@ -65,9 +64,7 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden bg-plum text-white space-y-2 px-4 py-4">
           <Link to="/" className="block hover:text-sunsetBlaze">Home</Link>
-          <Link to="/about" className="block hover:text-sunsetBlaze">About</Link>
           <Link to="/listings" className="block hover:text-sunsetBlaze">Listings</Link>
-          <Link to="/contact" className="block hover:text-sunsetBlaze">Contact</Link>
           <Link to="/login" className="block hover:text-sunsetBlaze">Login</Link>
         </div>
       )}
