@@ -20,9 +20,9 @@ import { useEffect, useState } from 'react';
 const App = () => {
   const [user, setUser] = useState(null);
 
+      const userJson = localStorage.getItem('user_data');
   const getUserData = async () => {
     try {
-      const userJson = localStorage.getItem('user_data');
       const userData = userJson ? JSON.parse(userJson) : null;
       setUser(userData);
     } catch (err) {
@@ -32,7 +32,7 @@ const App = () => {
 
   useEffect(() => {
     getUserData();
-  }, []);
+  }, [userJson]);
 
   return (
     <div className="flex flex-col min-h-screen">

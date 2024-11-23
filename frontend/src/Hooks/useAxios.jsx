@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const useAxios = () => {
   
-  const baseURL = 'http://localhost:8888';
+  const baseURL = 'http://localhost:5500';
   const fetchData = useCallback(async (url, method = 'GET', data = null, config = {}) => {
     
     

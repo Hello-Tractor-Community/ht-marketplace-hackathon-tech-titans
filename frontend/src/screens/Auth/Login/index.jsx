@@ -29,6 +29,8 @@ const LoginPage = ({back='/'}) => {
       await checkSession()
       if (response.user_data.userType === 'buyer') {
         navigate(back)
+      } else if (response.user_data.userType === 'seller'){
+        navigate('/seller/products')
       }
     } catch (err) {
       toast.error(err.response.data.message)

@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ user, allowedRoles, children }) => {
+    console.log(user)
     if (!user) {
         // Redirect to login if user is not authenticated
         return <Navigate to="/login" />;

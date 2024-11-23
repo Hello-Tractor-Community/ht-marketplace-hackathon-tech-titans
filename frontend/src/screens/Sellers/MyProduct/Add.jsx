@@ -1,14 +1,15 @@
 import React, { useState, useCallback } from "react";
 import { GoogleMap, useJsApiLoader, Autocomplete } from "@react-google-maps/api";
 import { useDropzone } from "react-dropzone";
+import useAxios from "../../../Hooks/useAxios"
 
 const SellerProductUpload = () => {
   const [productData, setProductData] = useState({
     name: "",
     price: "",
     location: { latitude: "", longitude: "", placeName: "" },
-    availability: false,
-    type: "",
+    availability: true,
+    typeProduct: "",
     usageHour: "",
     images: [],
     description: "",
@@ -26,7 +27,7 @@ const SellerProductUpload = () => {
 
   const [mapCenter, setMapCenter] = useState({ lat: -1.286389, lng: 36.817223 }); // Default to Nairobi
   const [autocomplete, setAutocomplete] = useState(null);
-
+const {post} = useAxios()
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY, // Replace with your API key
     libraries: ["places"],
@@ -63,18 +64,25 @@ const SellerProductUpload = () => {
   };
 
   const handleNestedChange = (field, subField, value) => {
-    setProductData((prev) => ({
-      ...prev,
-      [field]: {
-        ...prev[field],
-        [subField]: value,
-      },
-    }));
-  };
+  setProductData((prev) => ({
+    ...prev,
+    [field]: {
+      ...prev[field],
+      [subField]: isNaN(value) ? value : Number(value), 
+    },
+  }));
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(productData); // Replace with API call to save the product
+    console.log(productData);
+    try {
+      const response = await post('/api/product/add', productData, { useAuth: true })
+      console.log(response)
+    } catch(error) {
+      console.log(error)
+    }
   };
     
     
@@ -154,8 +162,8 @@ const SellerProductUpload = () => {
 
         {/* Type */}
         <select
-          name="type"
-          value={productData.type}
+          name="typeProduct"
+          value={productData.typeProduct}
           onChange={handleChange}
           className="border p-2 rounded-lg"
           required

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { FaPlus } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const SellerProductTable = () => {
   const [products, setProducts] = useState([]); // Mock product data
@@ -6,6 +8,7 @@ const SellerProductTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const navigate = useNavigate()
 
   // Mock data for demonstration purposes
   useEffect(() => {
@@ -97,7 +100,8 @@ const SellerProductTable = () => {
       <h1 className="text-2xl font-bold mb-4">My Products</h1>
 
       {/* Search Bar */}
-      <div className="mb-4">
+      <div className="flex justify-between">
+      <div className="mb-4 flex-grow mx-4">
         <input
           type="text"
           placeholder="Search by name or type..."
@@ -105,6 +109,15 @@ const SellerProductTable = () => {
           onChange={handleSearch}
           className="border p-2 rounded-lg w-full"
         />
+      </div>
+        <div>
+          <button
+            onClick={()=>{navigate('/seller/product/add')}}
+            className="w-full bg-sunsetBlaze text-white py-2 px-4 rounded-lg hover:bg-red-600 transition duration-300 flex justify-center gap-1 items-center">
+            <FaPlus />
+            Add
+           </button>
+        </div>
       </div>
 
       {/* Table */}

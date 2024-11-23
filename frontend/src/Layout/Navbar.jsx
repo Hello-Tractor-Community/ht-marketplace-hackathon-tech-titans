@@ -7,9 +7,9 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
+  const storedUser= localStorage.getItem('user_data');
   const getUserData = async () => {
     try {
-      const storedUser= localStorage.getItem('user_data');
       if (storedUser) {
       setUser(JSON.parse(storedUser))
     } else {
@@ -22,7 +22,7 @@ const Navbar = () => {
 
   useEffect(() => {
     getUserData();
-  }, []);
+  }, [storedUser]);
 
   // Links for authenticated users based on userType
   const adminLinks = [
@@ -32,7 +32,7 @@ const Navbar = () => {
   ];
 
   const sellerLinks = [
-    { to: "/my-listings", label: "My Listings" },
+    { to: "/seller/products", label: "My Listings" },
     { to: "/add-listing", label: "Add Listing" },
     { to: "/messages", label: "Messages" },
   ];
