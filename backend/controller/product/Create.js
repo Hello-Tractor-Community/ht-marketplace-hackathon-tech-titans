@@ -22,7 +22,7 @@ const CreateProduct = async (req, res) => {
             usageHour,
             typeProduct
         } = req.body;
-
+        console.log(req.body);
         // Validation: Check if all required fields are present
         if (
             !name ||

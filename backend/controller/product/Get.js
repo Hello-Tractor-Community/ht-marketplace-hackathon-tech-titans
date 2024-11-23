@@ -3,17 +3,19 @@ const Product = require('../../models/Product');
 const GetProducts = async(req,res) =>{
     try {
         let activeProducts
-        if(req.user.usertype ==='seller'){
+        const user =req.user;
+        console.log(user.userType);
+        if(user.userType =='seller'){
 
-            activeProducts = await Product.find({ isActive: true, createdBy:req.user._id });
+            console.log(22)
+            activeProducts = await Product.find({ isActive: true,createdBy:user._id });
         }
-        else if(req.user.usertype ==='admin') {
-            activeProducts = await Product.find({});
-        }else{
-            activeProducts = await Product.find({isActive:true});
+        else if(user.usertype ==='admin') {
+            return activeProducts = await Product.find({});
         }
+        console.log(333)
         // Fetch all products with isActive == true
-
+        console.log(activeProducts);
         // Return the list of active products
         res.status(200).json({
             success: true,
