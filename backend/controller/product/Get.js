@@ -7,13 +7,13 @@ const GetProducts = async(req,res) =>{
         console.log(user.userType);
         if(user.userType =='seller'){
 
-            console.log(22)
+            
             activeProducts = await Product.find({ isActive: true,createdBy:user._id });
         }
         else if(user.usertype ==='admin') {
             return activeProducts = await Product.find({});
         }
-        console.log(333)
+        
         // Fetch all products with isActive == true
         console.log(activeProducts);
         // Return the list of active products

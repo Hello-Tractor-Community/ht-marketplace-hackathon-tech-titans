@@ -20,7 +20,7 @@ const VerifySignUpToken = require('./AUTH/AUTHENTICATESIGNUPTOKEN');
 const signUp = require('./routes/Users');
 const Product = require('./routes/Product');
 const AddToCart =require('./routes/AddToCart');
-
+const WishList = require('./routes/WishList');
 // Initialize Passport and MongoDB connection
 initializePassport(passport);
 connectToMongoDB();
@@ -66,6 +66,7 @@ app.use('/api/auth/verify-sign-up-token', VerifySignUpToken);
 app.use('/api/register', signUp);
 app.use('/api/product', Product);
 app.use('/api/cart',AddToCart);
+app.use('/api/wishlist', WishList);
 // Connect to MongoDB and start the server
 const mongoUri = process.env.MONGO_URI || '';
 mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
