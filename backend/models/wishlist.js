@@ -5,8 +5,12 @@ const WishlistModel = new mongoose.Schema(
     {
         customer: {
             type: Schema.Types.ObjectId,
-            required: true,
+            required: false,
             ref: 'Customer', // Reference to the Customer model
+        },
+        sessionId:{
+            type:String,
+            required:false
         },
         items: [
             {
