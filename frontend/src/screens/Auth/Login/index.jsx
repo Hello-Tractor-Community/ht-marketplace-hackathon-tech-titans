@@ -27,6 +27,7 @@ const LoginPage = ({back='/'}) => {
       toast.success(response.message)
       localStorage.setItem('access_token', response.token)
       await checkSession()
+      console.log(response.user_data.userType)
       if (response.user_data.userType === 'buyer') {
         navigate(back)
       } else if (response.user_data.userType === 'seller'){

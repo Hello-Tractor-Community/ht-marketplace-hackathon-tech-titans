@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import useAxios from '../../../Hooks/useAxios'
 
 const SellerProductTable = () => {
   const [products, setProducts] = useState([]); // Mock product data
@@ -9,6 +10,15 @@ const SellerProductTable = () => {
   const [itemsPerPage] = useState(5);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const navigate = useNavigate()
+  const { get } = useAxios()
+
+  const fecthProducts = async() => {
+    try {
+      const products = await get()
+    } catch (err) {
+      
+    }
+  }
 
   // Mock data for demonstration purposes
   useEffect(() => {
