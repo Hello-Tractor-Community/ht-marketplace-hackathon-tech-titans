@@ -15,6 +15,7 @@ import SellerProductTable from './screens/Sellers/MyProduct/list';
 import Profile from './screens/users/Profile/Profile';
 import OTPPage from './screens/Auth/Otp';
 import ProtectedRoute from './Routes/ProtectedRoute';
+import NotAuthorizedPage from './screens/Auth/NotAuthorized/NotAuthorized';
 import { useEffect, useState } from 'react';
 
 const App = () => {
@@ -48,6 +49,7 @@ const App = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegistrationPage />} />
           <Route path="/product/:id" element={<ProductDetailsPage />} />
+          <Route path="/not-authorized" element={<NotAuthorizedPage />} />
 
           {/* Protected Routes */}
           <Route

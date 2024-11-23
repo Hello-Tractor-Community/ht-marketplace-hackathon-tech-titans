@@ -16,7 +16,7 @@ const HomePage = () => {
 
   async function fetchProducts() {
     try {
-      const response = await get("/api/product/get");
+      const response = await get("/api/product/get-2");
       console.log(response.products)
       setProducts(response.products || []);
     } catch (err) {

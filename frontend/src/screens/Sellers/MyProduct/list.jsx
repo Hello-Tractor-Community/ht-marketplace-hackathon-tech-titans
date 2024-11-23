@@ -2,71 +2,32 @@ import React, { useState, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import useAxios from '../../../Hooks/useAxios'
+import { toast } from "react-toastify";
 
 const SellerProductTable = () => {
   const [products, setProducts] = useState([]); // Mock product data
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(10);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const navigate = useNavigate()
-  const { get } = useAxios()
+  const { get,del } = useAxios()
 
-  const fecthProducts = async() => {
+  async function fetchProducts() {
     try {
-      const products = await get()
+      const response = await get("/api/product/get",{useAuth:true});
+      console.log(response.products)
+      setProducts(response.products || []);
     } catch (err) {
-      
+      console.log(err);
     }
   }
 
+
   // Mock data for demonstration purposes
   useEffect(() => {
-    setProducts([
-      {
-        id: 1,
-        name: "Tractor A",
-        price: "$25,000",
-        type: "tractor",
-        availability: true,
-      },
-      {
-        id: 2,
-        name: "Spare Part A",
-        price: "$500",
-        type: "spare",
-        availability: true,
-      },
-      {
-        id: 3,
-        name: "Tractor B",
-        price: "$18,000",
-        type: "tractor",
-        availability: false,
-      },
-      {
-        id: 4,
-        name: "Harvester",
-        price: "$45,000",
-        type: "tractor",
-        availability: true,
-      },
-      {
-        id: 5,
-        name: "Plow",
-        price: "$3,000",
-        type: "spare",
-        availability: false,
-      },
-      {
-        id: 6,
-        name: "Tractor C",
-        price: "$30,000",
-        type: "tractor",
-        availability: true,
-      },
-    ]);
-  }, []);
+    fetchProducts()
+    }, []);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -76,7 +37,7 @@ const SellerProductTable = () => {
   const filteredProducts = products.filter(
     (product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.type.toLowerCase().includes(searchTerm.toLowerCase())
+      product.typeProduct.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -88,7 +49,7 @@ const SellerProductTable = () => {
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
-  const handleAction = (action, product) => {
+  const handleAction = async(action, product) => {
     switch (action) {
       case "view":
         console.log("Viewing product:", product);
@@ -98,7 +59,15 @@ const SellerProductTable = () => {
         break;
       case "delete":
         console.log("Deleting product:", product);
-        setProducts(products.filter((p) => p.id !== product.id));
+        try {
+        await del(`/api/product/activate-deactivate/${product._id}`,{useAuth: true});
+          toast.success("Product deleted successfully");
+          setProducts((prevProducts) =>
+            prevProducts.filter((p) => p._id !== product._id)
+          );
+      } catch (error) {
+        console.error("Error deleting product:", error);
+      }
         break;
       default:
         break;
@@ -146,12 +115,12 @@ const SellerProductTable = () => {
             {currentItems.length > 0 ? (
               currentItems.map((product) => (
                 <tr
-                  key={product.id}
+                  key={product._id}
                   className="border-t hover:bg-gray-100 transition duration-150"
                 >
                   <td className="py-2 px-4">{product.name}</td>
                   <td className="py-2 px-4">{product.price}</td>
-                  <td className="py-2 px-4 capitalize">{product.type}</td>
+                  <td className="py-2 px-4 capitalize">{product.typeProduct}</td>
                   <td className="py-2 px-4">
                     {product.availability ? "Available" : "Not Available"}
                   </td>
@@ -160,14 +129,14 @@ const SellerProductTable = () => {
                       <button
                         onClick={() =>
                           setSelectedProduct(
-                            selectedProduct === product.id ? null : product.id
+                            selectedProduct === product._id ? null : product._id
                           )
                         }
                         className="text-gray-500 hover:text-gray-700"
                       >
                         •••
                       </button>
-                      {selectedProduct === product.id && (
+                      {selectedProduct === product._id && (
                         <div className="absolute z-10 bg-white border border-gray-300 rounded shadow-lg right-0 mt-2">
                           <button
                             onClick={() => handleAction("view", product)}

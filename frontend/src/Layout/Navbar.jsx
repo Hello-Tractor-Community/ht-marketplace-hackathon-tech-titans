@@ -33,7 +33,6 @@ const Navbar = () => {
 
   const sellerLinks = [
     { to: "/seller/products", label: "My Listings" },
-    { to: "/add-listing", label: "Add Listing" },
     { to: "/messages", label: "Messages" },
   ];
 
@@ -57,8 +56,8 @@ const Navbar = () => {
       ? adminLinks
       : user.userType === "seller"
       ? sellerLinks
-      : buyerLinks // Default to buyer links
-    : guestLinks; // Default to guest links if no user
+      : buyerLinks 
+    : guestLinks; 
 
   return (
     <nav className="bg-plum text-white">

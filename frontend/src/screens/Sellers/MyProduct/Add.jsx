@@ -2,6 +2,8 @@ import React, { useState, useCallback } from "react";
 import { GoogleMap, useJsApiLoader, Autocomplete } from "@react-google-maps/api";
 import { useDropzone } from "react-dropzone";
 import useAxios from "../../../Hooks/useAxios"
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const SellerProductUpload = () => {
   const [productData, setProductData] = useState({
@@ -27,7 +29,8 @@ const SellerProductUpload = () => {
 
   const [mapCenter, setMapCenter] = useState({ lat: -1.286389, lng: 36.817223 }); // Default to Nairobi
   const [autocomplete, setAutocomplete] = useState(null);
-const {post} = useAxios()
+  const { post } = useAxios()
+  const navigate = useNavigate()
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY, // Replace with your API key
     libraries: ["places"],
@@ -79,8 +82,35 @@ const {post} = useAxios()
     console.log(productData);
     try {
       const response = await post('/api/product/add', productData, { useAuth: true })
-      console.log(response)
-    } catch(error) {
+      console.log(response.success)
+      if (response.success === true) {
+        toast.success("Product uploaded successfully!");
+        setProductData({
+          name: "",
+          price: "",
+          location: { latitude: "", longitude: "", placeName: "" },
+          availability: true,
+          typeProduct: "",
+          usageHour: "",
+          images: [],
+          description: "",
+          modelNumber: "",
+          brand: "",
+          year: "",
+          engineType: "",
+          horsepower: "",
+          weight: "",
+          dimensions: { length: "", width: "", height: "" },
+          fuelCapacity: "",
+          transmissionType: "",
+          warranty: "",
+        });
+        navigate('/seller/products')
+      } else {
+        toast.error("Failed to Upload Product, Please try again later!!!")
+      }
+    } catch (error) {
+      toast.error("Failed to Add Upload Product, Please try again later!!!")
       console.log(error)
     }
   };
@@ -105,46 +135,50 @@ const {post} = useAxios()
       <h1 className="text-2xl font-bold mb-6 mx-auto flex items-center justify-center">Upload Product</h1>
       <form onSubmit={handleSubmit} className="grid gap-6">
         {/* Name */}
-        <input
-          type="text"
-          name="name"
-          value={productData.name}
-          onChange={handleChange}
-          placeholder="Product Name"
-          className="border p-2 rounded-lg w-full"
-          required
-        />
+        
+       <label className="block">
+          <span className="text-gray-700 font-semibold">Product Name *</span>
+          <input
+            type="text"
+            name="name"
+            value={productData.name}
+            onChange={handleChange}
+            placeholder="Product Name"
+            className="border p-2 rounded-lg w-full"
+            required
+          />
+        </label>  
 
         {/* Price */}
-        <input
-          type="number"
-          name="price"
-          value={productData.price}
-          onChange={handleChange}
-          placeholder="Price"
-          className="border p-2 rounded-lg w-full"
-          required
-        />
+        <label className="block">
+          <span className="text-gray-700 font-semibold">Price *</span>
+          <input
+            type="number"
+            name="price"
+            value={productData.price}
+            onChange={handleChange}
+            placeholder="Price"
+            className="border p-2 rounded-lg w-full"
+            required
+          />
+        </label>
 
         {/* Location */}
         {isLoaded && (
-          <div>
-            <label className="block mb-2 font-bold">Search Location</label>
-            <Autocomplete
-              onLoad={handleAutocompleteLoad}
-              onPlaceChanged={handlePlaceSelected}
-            >
+          <label className="block">
+            <span className="text-gray-700 font-semibold">Search Location *</span>
+            <Autocomplete onLoad={handleAutocompleteLoad} onPlaceChanged={handlePlaceSelected}>
               <input
                 type="text"
                 placeholder="Search location"
                 className="border p-2 rounded-lg w-full"
               />
             </Autocomplete>
-          </div>
+          </label>
         )}
 
         {/* Availability */}
-        <label className="flex items-center">
+        {/* <label className="flex items-center">
           <input
             type="checkbox"
             name="availability"
@@ -158,30 +192,36 @@ const {post} = useAxios()
             className="mr-2"
           />
           Available
-        </label>
+        </label> */}
 
         {/* Type */}
-        <select
-          name="typeProduct"
-          value={productData.typeProduct}
-          onChange={handleChange}
-          className="border p-2 rounded-lg"
-          required
-        >
-          <option value="">Select Type</option>
-          <option value="tractor">Tractor</option>
-          <option value="spare">Spare Part</option>
-        </select>
+        <label className="block">
+          <span className="text-gray-700 font-semibold">Type *</span>
+          <select
+            name="typeProduct"
+            value={productData.typeProduct}
+            onChange={handleChange}
+            className="border p-2 rounded-lg w-full"
+            required
+          >
+            <option value="">Select Type</option>
+            <option value="tractor">Tractor</option>
+            <option value="spare">Spare Part</option>
+          </select>
+        </label>
 
         {/* Usage Hour */}
-        <input
-          type="number"
-          name="usageHour"
-          value={productData.usageHour}
-          onChange={handleChange}
-          placeholder="Usage Hours"
-          className="border p-2 rounded-lg w-full"
-        />
+        <label className="block">
+          <span className="text-gray-700 font-semibold">Usage Hours</span>
+          <input
+            type="number"
+            name="usageHour"
+            value={productData.usageHour}
+            onChange={handleChange}
+            placeholder="Usage Hours"
+            className="border p-2 rounded-lg w-full"
+          />
+        </label>
 
         {/* Images */}
         <div className="mb-6">
@@ -244,6 +284,8 @@ const {post} = useAxios()
 
 
         {/* Description */}
+        <label className="block">
+          <span className="text-gray-700 font-semibold">Description *</span>
         <textarea
           name="description"
           value={productData.description}
@@ -253,9 +295,12 @@ const {post} = useAxios()
           rows="4"
           maxLength="500"
           required
-        ></textarea>
+          ></textarea>
+          </label>
 
         {/* Additional Fields */}
+        <label className="block">
+          <span className="text-gray-700 font-semibold">Model Number *</span>
         <input
           type="text"
           name="modelNumber"
@@ -263,7 +308,10 @@ const {post} = useAxios()
           onChange={handleChange}
           placeholder="Model Number"
           className="border p-2 rounded-lg w-full"
-        />
+          />
+        </label>
+        <label className="block">
+          <span className="text-gray-700 font-semibold">Brand *</span>
         <input
           type="text"
           name="brand"
@@ -271,7 +319,10 @@ const {post} = useAxios()
           onChange={handleChange}
           placeholder="Brand"
           className="border p-2 rounded-lg w-full"
-        />
+          />
+        </label>
+        <label className="block">
+          <span className="text-gray-700 font-semibold">Year *</span>
         <input
           type="number"
           name="year"
@@ -279,7 +330,10 @@ const {post} = useAxios()
           onChange={handleChange}
           placeholder="Year"
           className="border p-2 rounded-lg w-full"
-        />
+          />
+        </label>
+        <label className="block">
+          <span className="text-gray-700 font-semibold">Engine Type *</span>
         <input
           type="text"
           name="engineType"
@@ -288,6 +342,9 @@ const {post} = useAxios()
           placeholder="Engine Type"
           className="border p-2 rounded-lg w-full"
         />
+        </label>
+        <label className="block">
+          <span className="text-gray-700 font-semibold">Horse Power</span>
         <input
           type="number"
           name="horsepower"
@@ -295,7 +352,10 @@ const {post} = useAxios()
           onChange={handleChange}
           placeholder="Horsepower"
           className="border p-2 rounded-lg w-full"
-        />
+          />
+        </label>
+        <label className="block">
+          <span className="text-gray-700 font-semibold">Weight *</span>
         <input
           type="number"
           name="weight"
@@ -303,39 +363,52 @@ const {post} = useAxios()
           onChange={handleChange}
           placeholder="Weight (kg)"
           className="border p-2 rounded-lg w-full"
-        />
+          />
+        </label>
         <div className="grid gap-4 grid-cols-3">
-          <input
-            type="number"
-            name="length"
-            value={productData.dimensions.length}
-            onChange={(e) =>
-              handleNestedChange("dimensions", "length", e.target.value)
-            }
-            placeholder="Length"
-            className="border p-2 rounded-lg"
-          />
-          <input
-            type="number"
-            name="width"
-            value={productData.dimensions.width}
-            onChange={(e) =>
-              handleNestedChange("dimensions", "width", e.target.value)
-            }
-            placeholder="Width"
-            className="border p-2 rounded-lg"
-          />
-          <input
-            type="number"
-            name="height"
-            value={productData.dimensions.height}
-            onChange={(e) =>
-              handleNestedChange("dimensions", "height", e.target.value)
-            }
-            placeholder="Height"
-            className="border p-2 rounded-lg"
-          />
-        </div>
+  <label className="block">
+    <span className="text-gray-700 font-semibold">Length *</span>
+    <input
+      type="number"
+      name="length"
+      value={productData.dimensions.length}
+      onChange={(e) =>
+        handleNestedChange("dimensions", "length", e.target.value)
+      }
+      placeholder="Length"
+      className="border p-2 rounded-lg w-full"
+    />
+  </label>
+  <label className="block">
+    <span className="text-gray-700 font-semibold">Width *</span>
+    <input
+      type="number"
+      name="width"
+      value={productData.dimensions.width}
+      onChange={(e) =>
+        handleNestedChange("dimensions", "width", e.target.value)
+      }
+      placeholder="Width"
+      className="border p-2 rounded-lg w-full"
+    />
+  </label>
+  <label className="block">
+    <span className="text-gray-700 font-semibold">Height *</span>
+    <input
+      type="number"
+      name="height"
+      value={productData.dimensions.height}
+      onChange={(e) =>
+        handleNestedChange("dimensions", "height", e.target.value)
+      }
+      placeholder="Height"
+      className="border p-2 rounded-lg w-full"
+    />
+  </label>
+</div>
+
+        <label className="block">
+          <span className="text-gray-700 font-semibold">Fuel Capacity *</span>
         <input
           type="number"
           name="fuelCapacity"
@@ -343,7 +416,10 @@ const {post} = useAxios()
           onChange={handleChange}
           placeholder="Fuel Capacity (L)"
           className="border p-2 rounded-lg w-full"
-        />
+          />
+        </label>
+        <label className="block">
+          <span className="text-gray-700 font-semibold">Transmission Type *</span>
         <input
           type="text"
           name="transmissionType"
@@ -351,7 +427,10 @@ const {post} = useAxios()
           onChange={handleChange}
           placeholder="Transmission Type"
           className="border p-2 rounded-lg w-full"
-        />
+          />
+        </label>
+        <label className="block">
+          <span className="text-gray-700 font-semibold">Warranty *</span>
         <input
           type="text"
           name="warranty"
@@ -359,7 +438,8 @@ const {post} = useAxios()
           onChange={handleChange}
           placeholder="Warranty"
           className="border p-2 rounded-lg w-full"
-        />
+          />
+          </label>
 
         {/* Submit Button */}
         <button

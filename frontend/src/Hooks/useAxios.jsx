@@ -27,7 +27,7 @@ const useAxios = () => {
   const get = useMemo(() => (url, config = {}) => fetchData(url, 'GET', null, config), [fetchData]);
   const post = useMemo(() => (url, data, config = {}) => fetchData(url, 'POST', data, config), [fetchData]);
   const patch = useMemo(() => (url, data, config = {}) => fetchData(url, 'PATCH', data, config), [fetchData]);
-  const del = useMemo(() => (url,data, config = {}) => fetchData(url, 'DELETE', data, config), [fetchData]);
+  const del = useMemo(() => (url, config = {}) => fetchData(url, 'DELETE', null,config), [fetchData]);
   const put = useMemo(() => (url, data, config = {}) => fetchData(url, 'PUT', data, config), [fetchData]);
 
   return { get, post, patch, del,put };
