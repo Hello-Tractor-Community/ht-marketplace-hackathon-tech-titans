@@ -21,6 +21,7 @@ const signUp = require('./routes/Users');
 const Product = require('./routes/Product');
 const AddToCart =require('./routes/AddToCart');
 const WishList = require('./routes/WishList');
+const Message = require('./routes/Message');
 // Initialize Passport and MongoDB connection
 initializePassport(passport);
 connectToMongoDB();
@@ -55,7 +56,17 @@ app.use((req, res, next) => {
             maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
         });
         console.log(`Generated new session ID: ${sessionId}`);
+
+        // Send the session ID immediately to the frontend
+        return res.status(200).json({
+            success: true,
+            message: 'Session ID generated successfully.',
+            sessionId: sessionId,
+        });
+    } else {
+        res.locals.sessionId = req.cookies.sessionId; // Use existing sessionId
     }
+
     next();
 });
 
@@ -67,6 +78,7 @@ app.use('/api/register', signUp);
 app.use('/api/product', Product);
 app.use('/api/cart',AddToCart);
 app.use('/api/wishlist', WishList);
+app.use('/api/message', Message);
 // Connect to MongoDB and start the server
 const mongoUri = process.env.MONGO_URI || '';
 mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
