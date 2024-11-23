@@ -5,15 +5,10 @@ const GetById = async(req,res) =>{
         const {productId} =req.params;
         console.log('productId', productId);
 
-        const user =req.user;
+        
 
-        let product;
-        if(user.userType ==='seller'){
-            return product = await Product.find({isActive:true, createdBy:user._id, _id:productId});
-        }
-        else if(user.userType ==='admin'){
-            return product = await Product.find({_id:user._id});
-        }
+        let product = await Product.find({isActive:true, _id:productId});
+       
 
         res.status(200).json({message:'Successfully retrieved product', product:product});
 
