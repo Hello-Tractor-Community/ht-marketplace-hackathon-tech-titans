@@ -17,7 +17,12 @@ const HomePage = () => {
   async function fetchProducts() {
     try {
       const response = await get("/api/product/get-2");
-      console.log(response.products)
+      console.log(response)
+
+      if (response.message === "Session ID generated successfully.") {
+        localStorage.setItem("session_id", response.sessionId)
+      }
+
       setProducts(response.products || []);
     } catch (err) {
       console.log(err);
@@ -74,19 +79,9 @@ const HomePage = () => {
       ?.toLowerCase()
       .includes(filters.location.toLowerCase().trim());
 
-  console.log({
-    productName: product.name,
-    matchesSearchTerm,
-    matchesType,
-    matchesPriceRange,
-    matchesLocation,
-  });
-
   return matchesSearchTerm && matchesType && matchesPriceRange && matchesLocation;
 });
 
-
-  console.log("Filtered Products:", filteredProducts);
 
 
   return (
@@ -122,7 +117,7 @@ const HomePage = () => {
                   ${product.price.toLocaleString()}
                 </p>
                 <Link
-                  to={`/product/${product.id}`}
+                  to={`/product/${product._id}`}
                   className="mt-4 inline-block bg-sunsetBlaze text-white py-2 px-4 rounded-lg hover:bg-red-600 transition duration-300"
                 >
                   View Details
