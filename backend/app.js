@@ -72,8 +72,8 @@ mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         console.log('Connected to database!');
         app.listen(8888, () => {
-            console.log('Server running on port 8888');
-            console.log('Application running on http://localhost:8888');
+            console.log('Server running on port 5500');
+            console.log('Application running on http://localhost:5500');
         });
     })
     .catch((err) => {
