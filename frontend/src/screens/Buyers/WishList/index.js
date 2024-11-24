@@ -12,8 +12,8 @@ const Wishlist = () => {
         const fetchWishlist = async () => {
             try {
                 const response = await get("/api/wishlist/get");
-                console.log(response)  
-                setWishlist(response.wishlist || []);
+                console.log(response.wishlist.items)  
+                setWishlist(response.wishlist.items || []);
             } catch (error) {
                 console.error("Error fetching wishlist:", error);
             }
@@ -36,17 +36,17 @@ const Wishlist = () => {
             {wishlist.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {wishlist.map((item) => (
-                        <div key={item.product.id} className="bg-white shadow-lg rounded-lg p-4 relative">
+                        <div key={item.productId.id} className="bg-white shadow-lg rounded-lg p-4 relative">
                             <button
                                 onClick={() => handleRemoveFromWishlist(item.product.id)}
                                 className="absolute top-2 right-2 text-red-500 hover:text-red-700"
                             >
                                 <FaTrashAlt />
                             </button>
-                            <h2 className="text-xl font-bold mb-2">{item.product.name}</h2>
-                            <p className="text-gray-700 mb-4">Price: ${item.product.price}</p>
+                            <h2 className="text-xl font-bold mb-2">{item.productId.name}</h2>
+                            <p className="text-gray-700 mb-4">Price: ${item.productId.price}</p>
                             <Link
-                                to={`/product/${item.product.id}`}
+                                to={`/product/${item.productId.id}`}
                                 className="text-sunsetBlaze hover:underline"
                             >
                                 View Product

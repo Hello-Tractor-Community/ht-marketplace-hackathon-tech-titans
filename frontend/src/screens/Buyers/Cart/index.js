@@ -11,7 +11,8 @@ const Cart = () => {
         const fetchCart = async () => {
             try {
                 const response = await get("/api/cart/get");
-                setCart(response.cart || []);
+                console.log(response)  
+                setCart(response || []);
             } catch (error) {
                 console.error("Error fetching cart:", error);
             }
