@@ -49,9 +49,9 @@ const CreateUser = async (req, res) => {
         if (req.file) {
             data.logo = `/uploads/sellers/${req.file.filename}`;
         } else {
-            
             return res.status(400).json({ message: 'Logo is required for seller profile.' });
         }
+        
 
 
         if (Object.keys(errors).length > 0) {
