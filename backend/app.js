@@ -24,6 +24,7 @@ const AddToCart =require('./routes/AddToCart');
 const WishList = require('./routes/WishList');
 const Message = require('./routes/Message');
 const Chat =require('./routes/Chat');
+const User =require('./routes/Users');
 // Initialize Passport and MongoDB connection
 initializePassport(passport);
 connectToMongoDB();
@@ -110,6 +111,7 @@ app.use('/api/cart',AddToCart);
 app.use('/api/wishlist', WishList);
 app.use('/api/message', Message);
 app.use('/api/chat', Chat);
+app.use('/api/users',User);
 // Connect to MongoDB and start the server
 const mongoUri = process.env.MONGO_URI || '';
 mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })

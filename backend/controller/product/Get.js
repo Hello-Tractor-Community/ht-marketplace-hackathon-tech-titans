@@ -11,7 +11,7 @@ const GetProducts = async(req,res) =>{
             activeProducts = await Product.find({ isActive: true,createdBy:user._id });
         }
         else if(user.usertype ==='admin') {
-            return activeProducts = await Product.find({});
+            activeProducts = await Product.find({});
         }
         
         // Fetch all products with isActive == true
