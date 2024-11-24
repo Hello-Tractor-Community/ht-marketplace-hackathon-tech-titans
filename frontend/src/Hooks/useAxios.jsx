@@ -14,7 +14,6 @@ const useAxios = () => {
       const headers = {
         ...config.headers,
         ...(config.useAuth && token ? { Authorization: `Bearer ${token}` } : {}),
-        Cookie: sessionId ? `sessionId=${sessionId}` : undefined,
       };
 
       // Add session_id to the Cookie header
@@ -27,6 +26,7 @@ const useAxios = () => {
         method,
         url: `${baseURL}${url}`,
         data,
+        withCredentials: true,
         headers,
         ...config,
       });
