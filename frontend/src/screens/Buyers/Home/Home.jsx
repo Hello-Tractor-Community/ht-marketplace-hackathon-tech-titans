@@ -112,7 +112,8 @@ const HomePage = () => {
               />
               <div className="p-4">
                 <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
-                <p className="text-gray-600 text-sm mb-4">{product.description}</p>
+                <p className="text-gray-600 text-sm mb-4"><span className="font-bold">Location:</span> {product.location.placeName}</p>
+                <p className="text-gray-600 text-sm mb-4"><span className="font-bold">Brand:</span> {product.brand}</p>
                 <p className="text-lg font-bold text-sunsetBlaze mb-4">
                   ${product.price.toLocaleString()}
                 </p>

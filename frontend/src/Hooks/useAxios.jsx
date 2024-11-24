@@ -14,12 +14,13 @@ const useAxios = () => {
       const headers = {
         ...config.headers,
         ...(config.useAuth && token ? { Authorization: `Bearer ${token}` } : {}),
+        Cookie: sessionId ? `sessionId=${sessionId}` : undefined,
       };
 
       // Add session_id to the Cookie header
-      if (sessionId) {
-        headers.Cookie = `sessionId=${sessionId}`;
-      }
+    //   if (sessionId) {
+    //   headers['Cookie'] = `sessionId=${sessionId}`;
+    // }
 
       // Make the request with axios
       const response = await axios({
@@ -30,7 +31,7 @@ const useAxios = () => {
         ...config,
       });
 
-      // Refresh session ID if present in the response cookies
+      
       if (response.data?.sessionId) {
         localStorage.setItem('session_id', response.data.sessionId);
       }
