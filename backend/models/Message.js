@@ -14,12 +14,24 @@ const MessageModel = new mongoose.Schema(
             type: String, // Encrypted message stored as a string
             required: true,
         },
+        chat:{
+            type:mongoose.Types.ObjectId,
+            ref:'Chat',
+            required:true,
+        },
      
         isActive: {
             type: Boolean,
             required: true,
             default: true,
         },
+        isRead:{
+            type: Boolean,
+            default:false,
+            required:true,
+        }
+
+
     },
     {
         timestamps: true,

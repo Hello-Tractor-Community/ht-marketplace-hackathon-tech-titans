@@ -5,6 +5,7 @@ const logger = require('morgan');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const { createServer } = require('http');
+const { Server } = require('socket.io');
 const passport = require('passport');
 const session = require('express-session');
 const { v4: uuidv4 } = require('uuid'); // For generating session IDs
@@ -22,6 +23,7 @@ const Product = require('./routes/Product');
 const AddToCart =require('./routes/AddToCart');
 const WishList = require('./routes/WishList');
 const Message = require('./routes/Message');
+const Chat =require('./routes/Chat');
 // Initialize Passport and MongoDB connection
 initializePassport(passport);
 connectToMongoDB();
@@ -34,6 +36,34 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors({ origin: 'http://localhost:3000', credentials: true, }));
+
+const server = createServer(app);  
+
+
+const io = new Server(server, {
+    cors: {
+        origin: '*', 
+        methods: ['GET', 'POST', "PATCH", "PUT", "DELETE"], 
+        allowedHeaders: ['my-custom-header', 'Content-Type'],
+        credentials: true
+    }
+});
+
+
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
+
+
+io.on('connection', (socket) => {
+    console.log(66666)
+    console.log('A user connected:', socket.id);
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected:', socket.id);
+    });
+});
 
 // Configure session
 app.use(session({
@@ -79,12 +109,13 @@ app.use('/api/product', Product);
 app.use('/api/cart',AddToCart);
 app.use('/api/wishlist', WishList);
 app.use('/api/message', Message);
+app.use('/api/chat', Chat);
 // Connect to MongoDB and start the server
 const mongoUri = process.env.MONGO_URI || '';
 mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         console.log('Connected to database!');
-        app.listen(8888, () => {
+        server.listen(8888, () => {
             console.log('Server running on port 5500');
             console.log('Application running on http://localhost:5500');
         });

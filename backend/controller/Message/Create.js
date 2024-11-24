@@ -1,12 +1,12 @@
 const Message = require('../../models/Message');
 
 const CreateMessage = async (req, res) => {
-    const { receiver, message, sender } = req.body;
+    const { receiver, message, sender ,chat} = req.body;
     console.log(req.body);
 
     try {
         // Validate input
-        if (!sender || !receiver || !message) {
+        if (!sender || !receiver || !message || !chat) {
             return res.status(400).json({
                 success: false,
                 message: 'Sender, receiver, and message are required.',
@@ -18,19 +18,20 @@ const CreateMessage = async (req, res) => {
             sender: req.user._id,
             receiver,
             message, // This will be encrypted in the pre-save hook
+            chat
         });
 
         await newMessage.save();
 
         // Trigger WebSocket event after message creation
         // Assuming `io` is the socket.io instance, broadcasting to the receiver
-        io.to(receiver).emit('new_message', {
-            id: newMessage._id,
-            sender: newMessage.sender,
-            receiver: newMessage.receiver,
-            message: newMessage.message,
-            createdAt: newMessage.createdAt,
-        });
+        // io.to(receiver).emit('new_message', {
+        //     id: newMessage._id,
+        //     sender: newMessage.sender,
+        //     receiver: newMessage.receiver,
+        //     message: newMessage.message,
+        //     createdAt: newMessage.createdAt,
+        // });
 
         res.status(201).json({
             success: true,
