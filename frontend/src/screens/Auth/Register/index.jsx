@@ -50,6 +50,13 @@ const RegistrationPage = () => {
     }));
   };
 
+   const handleFileChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      logo: e.target.files[0], 
+    }));
+  };
+
   const handleContactChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -86,12 +93,7 @@ const RegistrationPage = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleFileChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      logo: e.target.files[0], 
-    }));
-  };
+ 
 
   const handleSendOTP = (email) => {
     // Encrypt the email
@@ -203,6 +205,21 @@ const RegistrationPage = () => {
             )}
           </div>
           <div className="mb-4">
+                <label htmlFor="logo" className="block text-gray-700 font-medium mb-2">
+                  profile Image
+                </label>
+                <input
+                  type="file"
+                  id="logo"
+                  name="logo"
+                  onChange={handleFileChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sunsetBlaze"
+                />
+                {formErrors.logo && (
+                  <p className="text-red-500 text-sm">{formErrors.logo}</p>
+                )}
+              </div>
+          <div className="mb-4">
             <label htmlFor="userType" className="block text-gray-700 font-medium mb-2">
               User Type
             </label>
@@ -236,21 +253,6 @@ const RegistrationPage = () => {
                 />
                 {formErrors.companyName && (
                   <p className="text-red-500 text-sm">{formErrors.companyName}</p>
-                )}
-              </div>
-              <div className="mb-4">
-                <label htmlFor="logo" className="block text-gray-700 font-medium mb-2">
-                  Company Logo
-                </label>
-                <input
-                  type="file"
-                  id="logo"
-                  name="logo"
-                  onChange={handleFileChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sunsetBlaze"
-                />
-                {formErrors.logo && (
-                  <p className="text-red-500 text-sm">{formErrors.logo}</p>
                 )}
               </div>
               <div className="mb-4">

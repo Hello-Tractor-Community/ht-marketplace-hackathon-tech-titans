@@ -20,6 +20,7 @@ import Cart from './screens/Buyers/Cart/index'
 import { useEffect, useState } from 'react';
 import WishList from './screens/Buyers/WishList';
 import UserManagement from './screens/Admin/Users';
+import ProductManagement from './screens/Admin/ProductManagement';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -114,7 +115,15 @@ const App = () => {
               <UserManagement />
             </ProtectedRoute>
           }
-        />
+          />
+          <Route
+            path="/product-management"
+            element={
+              <ProtectedRoute user={user} allowedRoles={['admin']}>
+                <ProductManagement />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
 

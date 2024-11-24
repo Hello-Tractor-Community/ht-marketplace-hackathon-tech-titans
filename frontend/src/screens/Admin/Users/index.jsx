@@ -4,7 +4,7 @@ import { FiEdit, FiTrash, FiSearch } from "react-icons/fi";
 import { toast } from "react-toastify";
 
 const UserManagement = () => {
-    const { get,patch,del } = useAxios();
+    const { get,patch } = useAxios();
     const [users, setUsers] = useState([]);
     const [search, setSearch] = useState("");
     const [roleFilter, setRoleFilter] = useState("");
@@ -35,8 +35,7 @@ const UserManagement = () => {
 
     const handleDelete = async(id) => {
         try {
-            await del(`/api/register/users/${id}/deactivate`, { useAuth: true })
-            fetchUsers();
+            await patch(`/api/register/users/${id}/deactivate`, { useAuth: true })
             toast.success("Deactivated")
         } catch (err) {
             toast.error("Failed to deactivate user")

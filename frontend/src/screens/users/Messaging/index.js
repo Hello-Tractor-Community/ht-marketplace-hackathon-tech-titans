@@ -1,80 +1,155 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { FiSend, FiArrowLeft } from "react-icons/fi";
 import { BsEmojiSmile } from "react-icons/bs";
 import EmojiPicker from "emoji-picker-react";
+import useAxios from "../../../Hooks/useAxios";
 import HT_Icons_Orange from '../../../assets/Sunset Blaze/HT_ICONS_ORANGE-42.png';
 
 const MessagingPage = () => {
     const { user_id } = useParams(); // Get user_id from the URL
-    const navigate = useNavigate(); // For navigation
-    const [conversations] = useState([
-        { id: 1, name: "John Doe", lastMessage: "How about 5 PM?", avatar: "https://via.placeholder.com/50" },
-        { id: 2, name: "Jane Smith", lastMessage: "Is the tractor still available?", avatar: "https://via.placeholder.com/50" },
-        { id: 3, name: "Mike Johnson", lastMessage: "Thanks for the update.", avatar: "https://via.placeholder.com/50" },
-    ]);
-    const [selectedConversation, setSelectedConversation] = useState(null);
-    const [chatMessages, setChatMessages] = useState({
-        1: [
-            { id: 1, message: "Hi, is this still available?", sender: "user" },
-            { id: 2, message: "Yes, it is!", sender: "John Doe" },
-        ],
-        2: [],
-        3: [],
-    });
+    const navigate = useNavigate();
+    const { get, post } = useAxios();
+
+    const [user, setUser] = useState(null);
+    const [conversations, setConversations] = useState([]);
+    const [selectedChat, setSelectedChat] = useState(null);
+    const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
     const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
 
     useEffect(() => {
-        // Set the selected conversation based on the user_id in the URL
-        if (user_id) {
-            const conversation = conversations.find((conv) => conv.id === parseInt(user_id));
-            if (conversation) {
-                setSelectedConversation(conversation.id);
-            }
-        } else {
-            setSelectedConversation(null); // No user selected
+        const storedUser = localStorage.getItem("user_data");
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
         }
-    }, [user_id, conversations]);
+    }, []);
 
-    const handleSendMessage = () => {
+    useEffect(() => {
+        if (user) {
+            fetchChats();
+        }
+    }, [user]);
+
+    useEffect(() => {
+        if (user_id && user) {
+            openChat(user_id);
+        }
+    }, [user_id, user]);
+
+    // Fetch all chats
+    const fetchChats = async () => {
+        try {
+            const response = await get("/api/chat/get", { useAuth: true });
+            const filteredChats = response.chats.map((chat) => {
+                const otherUser =
+                    chat.user1._id === user.id ? chat.user2 : chat.user1;
+                return { ...chat, otherUser };
+            });
+            setConversations(filteredChats);
+        } catch (err) {
+            console.error("Error fetching chats:", err.message);
+        }
+    };
+
+    // Open a chat based on user_id
+    const openChat = async (userId) => {
+        try {
+            const existingChat = conversations.find(
+                (conv) => conv.otherUser._id === userId
+            );
+
+            if (existingChat) {
+                setSelectedChat(existingChat._id);
+                fetchMessages(existingChat._id);
+            } else {
+                const response = await post(
+                    "/api/chat/create",
+                    { user1: userId, user2: user.id },
+                    { useAuth: true }
+                );
+                setSelectedChat(response.newChat._id);
+                fetchChats();
+            }
+        } catch (err) {
+            console.error("Error opening chat:", err.message);
+        }
+    };
+
+    // Fetch messages for a specific chat
+    const fetchMessages = async (chatId) => {
+        try {
+            const response = await get(`/api/message/get/${chatId}`, {
+                useAuth: true,
+            });
+            setMessages(response.messages);
+        } catch (err) {
+            console.error("Error fetching messages:", err.message);
+        }
+    };
+
+    // Send a message
+    const sendMessage = async () => {
         if (!message.trim()) return;
 
-        setChatMessages((prevMessages) => ({
-            ...prevMessages,
-            [selectedConversation]: [
-                ...prevMessages[selectedConversation],
-                { id: Date.now(), message, sender: "user" },
-            ],
-        }));
-        setMessage(""); // Clear input field
+        try {
+            // Send the message to the backend
+            const response = await post(
+                "/api/message/create",
+                {
+                    sender: user.id,
+                    receiver: conversations.find((c) => c._id === selectedChat)?.otherUser._id,
+                    message,
+                    chat: selectedChat,
+                },
+                { useAuth: true }
+            );
+
+            // Update the UI with the new message
+            const newMessage = {
+                id: response.data.id,
+                sender: user.id,
+                receiver: response.data.receiver,
+                message,
+                createdAt: new Date().toISOString(),
+            };
+
+            setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+            // Clear the message input field
+            setMessage("");
+        } catch (err) {
+            console.error("Error sending message:", err.message);
+        }
     };
 
-    const handleEmojiClick = (emoji) => {
-        setMessage((prev) => prev + emoji.emoji);
-        setIsEmojiPickerOpen(false);
-    };
 
     return (
         <div className="flex min-h-screen bg-gray-100">
-            {/* Chat List View */}
+            {/* Chat List */}
             <div
-                className={`w-full sm:w-1/3 ${selectedConversation ? "hidden sm:block" : "block"
+                className={`w-full sm:w-1/3 ${selectedChat ? "hidden sm:block" : "block"
                     } bg-white border-r`}
             >
                 <h2 className="text-xl font-bold p-4 border-b">Chats</h2>
                 <ul className="divide-y">
                     {conversations.map((conversation) => (
                         <li
-                            key={conversation.id}
-                            className={`p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-100 ${selectedConversation === conversation.id ? "bg-gray-200" : ""
+                            key={conversation._id}
+                            className={`p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-100 ${selectedChat === conversation._id ? "bg-gray-200" : ""
                                 }`}
-                            onClick={() => navigate(`/message/${conversation.id}`)} // Navigate to the specific conversation
+                            onClick={() => navigate(`/message/${conversation.otherUser._id}`)}
                         >
-                            <img src={conversation.avatar} alt={conversation.name} className="w-10 h-10 rounded-full" />
+                            <img
+                                src="https://via.placeholder.com/50"
+                                alt={conversation.otherUser.firstName}
+                                className="w-10 h-10 rounded-full"
+                            />
                             <div>
-                                <p className="font-medium">{conversation.name}</p>
-                                <p className="text-sm text-gray-500 truncate">{conversation.lastMessage}</p>
+                                <p className="font-medium">{conversation.otherUser.firstName}</p>
+                                <p className="text-sm text-gray-500 truncate">
+                                    {conversation.lastMessage || "No messages yet"}
+                                </p>
                             </div>
                         </li>
                     ))}
@@ -83,48 +158,54 @@ const MessagingPage = () => {
 
             {/* Chat Window */}
             <div
-                className={`w-full sm:w-2/3 flex flex-col ${selectedConversation ? "block" : "hidden sm:block"
+                className={`w-full sm:w-2/3 flex flex-col ${selectedChat ? "block" : "hidden sm:block"
                     } bg-white`}
             >
-                {selectedConversation ? (
+                {selectedChat ? (
                     <>
-                        {/* Back Button for Mobile */}
+                        {/* Chat Header */}
                         <div className="p-4 border-b flex items-center space-x-4">
                             <button
-                                onClick={() => navigate("/message")} // Navigate back to chat list
+                                onClick={() => navigate("/message")}
                                 className="sm:hidden text-sunsetBlaze focus:outline-none"
                             >
                                 <FiArrowLeft size={24} />
                             </button>
                             <img
-                                src={conversations.find((c) => c.id === selectedConversation)?.avatar}
-                                alt=""
+                                src="https://via.placeholder.com/50"
+                                alt="Chat Avatar"
                                 className="w-10 h-10 rounded-full"
                             />
-                            <p className="text-lg font-medium">{conversations.find((c) => c.id === selectedConversation)?.name}</p>
+                            <p className="text-lg font-medium">
+                                {
+                                    conversations.find((conv) => conv._id === selectedChat)
+                                        ?.otherUser.firstName
+                                }
+                            </p>
                         </div>
 
-                        {/* Chat Messages */}
+                        {/* Messages */}
                         <div className="flex-1 p-4 overflow-y-auto">
-                            {chatMessages[selectedConversation]?.map((chat, index) => (
+                            {messages.map((msg, index) => (
                                 <div
                                     key={index}
-                                    className={`mb-4 ${chat.sender === "user" ? "text-right" : "text-left"
+                                    className={`mb-4 ${msg.sender === user.id ? "text-right" : "text-left"
                                         }`}
                                 >
                                     <span
-                                        className={`inline-block px-4 py-2 rounded-lg ${chat.sender === "user" ? "bg-sunsetBlaze text-white" : "bg-gray-200 text-gray-700"
+                                        className={`inline-block px-4 py-2 rounded-lg ${msg.sender === user.id
+                                                ? "bg-sunsetBlaze text-white"
+                                                : "bg-gray-200 text-gray-700"
                                             }`}
                                     >
-                                        {chat.message}
+                                        {msg.message}
                                     </span>
                                 </div>
                             ))}
                         </div>
 
-                        {/* Chat Input */}
+                        {/* Message Input */}
                         <div className="p-4 border-t flex items-center space-x-4 sticky bottom-0 bg-white">
-                            {/* Emoji Picker */}
                             <div className="relative">
                                 <button
                                     onClick={() => setIsEmojiPickerOpen(!isEmojiPickerOpen)}
@@ -134,42 +215,33 @@ const MessagingPage = () => {
                                 </button>
                                 {isEmojiPickerOpen && (
                                     <div className="absolute bottom-12 left-0">
-                                        <EmojiPicker onEmojiClick={handleEmojiClick} />
+                                        <EmojiPicker onEmojiClick={(e) => setMessage(message + e.emoji)} />
                                     </div>
                                 )}
                             </div>
-
-                            {/* Text Input */}
                             <input
                                 type="text"
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                                 placeholder="Type your message..."
-                                className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sunsetBlaze"
+                                className="flex-1 px-4 py-2 border rounded-lg"
                             />
-
-                            {/* Send Button */}
                             <button
-                                onClick={handleSendMessage}
-                                className="bg-sunsetBlaze text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-300"
+                                onClick={sendMessage}
+                                className="bg-sunsetBlaze text-white px-4 py-2 rounded-lg"
                             >
                                 <FiSend size={20} />
                             </button>
                         </div>
                     </>
                 ) : (
-                    <div className="flex-1 flex flex-col justify-center items-center h-screen text-gray-500">
-                        {/* Image */}
+                    <div className="flex-1 flex justify-center items-center text-gray-500">
                         <img
                             src={HT_Icons_Orange}
                             alt="No conversation selected"
                             className="mb-4 w-32 h-32"
                         />
-
-                        {/* Text */}
-                        <p className="text-center text-lg">
-                            Select a conversation to start chatting
-                        </p>
+                        <p>Select a conversation to start chatting</p>
                     </div>
                 )}
             </div>
