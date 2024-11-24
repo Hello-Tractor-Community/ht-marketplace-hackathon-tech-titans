@@ -12,7 +12,7 @@ const Wishlist = () => {
         const fetchWishlist = async () => {
             try {
                 const response = await get("/api/wishlist/get");
-                console.log(response.wishlist.items)  
+                console.log(response)  
                 setWishlist(response.wishlist || []);
             } catch (error) {
                 console.error("Error fetching wishlist:", error);

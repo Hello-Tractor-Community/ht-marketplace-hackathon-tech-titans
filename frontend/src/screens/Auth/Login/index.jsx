@@ -32,6 +32,8 @@ const LoginPage = ({back='/'}) => {
         navigate(back)
       } else if (response.user_data.userType === 'seller'){
         navigate('/seller/products')
+      }else if (response.user_data.userType === 'admin'){
+        navigate('/users')
       }
     } catch (err) {
       toast.error(err.response.data.message)

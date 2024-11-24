@@ -26,6 +26,7 @@ const useAxios = () => {
         method,
         url: `${baseURL}${url}`,
         data,
+        params: config.params || {},
         withCredentials: true,
         headers,
         ...config,

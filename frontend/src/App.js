@@ -19,6 +19,7 @@ import NotAuthorizedPage from './screens/Auth/NotAuthorized/NotAuthorized';
 import Cart from './screens/Buyers/Cart/index'
 import { useEffect, useState } from 'react';
 import WishList from './screens/Buyers/WishList';
+import UserManagement from './screens/Admin/Users';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -106,6 +107,14 @@ const App = () => {
                 <OTPPage />
             }
           />
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute user={user} allowedRoles={['admin']}>
+              <UserManagement />
+            </ProtectedRoute>
+          }
+        />
         </Routes>
       </div>
 

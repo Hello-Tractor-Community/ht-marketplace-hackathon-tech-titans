@@ -33,7 +33,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors({ origin: '*' }));
+app.use(cors({ origin: 'http://localhost:3000', credentials: true, }));
 
 // Configure session
 app.use(session({
@@ -58,11 +58,11 @@ app.use((req, res, next) => {
         console.log(`Generated new session ID: ${sessionId}`);
 
         // Send the session ID immediately to the frontend
-        return res.status(200).json({
-            success: true,
-            message: 'Session ID generated successfully.',
-            sessionId: sessionId,
-        });
+        // return res.status(200).json({
+        //     success: true,
+        //     message: 'Session ID generated successfully.',
+        //     sessionId: sessionId,
+        // });
     } else {
         res.locals.sessionId = req.cookies.sessionId; // Use existing sessionId
     }
