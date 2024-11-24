@@ -41,16 +41,29 @@ const MessagingPage = () => {
     const fetchChats = async () => {
         try {
             const response = await get("/api/chat/get", { useAuth: true });
+            console.log(response);
+
             const filteredChats = response.chats.map((chat) => {
+                // Determine the other user based on the logged-in user
                 const otherUser =
-                    chat.user1._id === user.id ? chat.user2 : chat.user1;
-                return { ...chat, otherUser };
+                    chat.user1 === user.id
+                        ? chat.user2Details[0] // Access first element of `user2Details`
+                        : chat.user1Details[0]; // Access first element of `user1Details`
+
+                return { ...chat, otherUser }; // Add `otherUser` details for easy access
             });
-            setConversations(filteredChats);
+
+            // Sort chats by `updatedAt` to ensure the latest message appears at the top
+            const sortedChats = filteredChats.sort(
+                (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+            );
+
+            setConversations(sortedChats);
         } catch (err) {
             console.error("Error fetching chats:", err.message);
         }
     };
+
 
     // Open a chat based on user_id
     const openChat = async (userId) => {
@@ -148,7 +161,7 @@ const MessagingPage = () => {
                             <div>
                                 <p className="font-medium">{conversation.otherUser.firstName}</p>
                                 <p className="text-sm text-gray-500 truncate">
-                                    {conversation.lastMessage || "No messages yet"}
+                                    {conversation.lastMessage.message || "No messages yet"}
                                 </p>
                             </div>
                         </li>
