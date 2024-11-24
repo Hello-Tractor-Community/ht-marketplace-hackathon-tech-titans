@@ -53,7 +53,10 @@ const UserSchema = new mongoose.Schema({
         type:Date,
         request:false,
         default:null
-    }
+    },
+        
+    logo: { type: String, required: false }, 
+
 },{
     timestamps:true
 });

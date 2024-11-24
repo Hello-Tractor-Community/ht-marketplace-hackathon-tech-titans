@@ -9,7 +9,6 @@ const AgentModel = new mongoose.Schema({
     },
     companyDetails: {
         name: { type: String, required: false },
-        logo: { type: String, required: false },
         description: { type: String, required: false },
     },
     contactDetails: {

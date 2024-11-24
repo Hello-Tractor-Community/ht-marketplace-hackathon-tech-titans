@@ -46,6 +46,13 @@ const CreateUser = async (req, res) => {
         password ? (data.password = await bcrypt.hash(password, 10)) : (errors.password = 'Password required');
         userType ? (data.userType = userType) : (errors.userType = 'User Type required');
         data.authToken = generateRandomOtp();
+        if (req.file) {
+            data.logo = `/uploads/sellers/${req.file.filename}`;
+        } else {
+            
+            return res.status(400).json({ message: 'Logo is required for seller profile.' });
+        }
+
 
         if (Object.keys(errors).length > 0) {
             return res.status(400).json({ message: 'Provide all required information to complete', errors });
@@ -73,12 +80,7 @@ const CreateUser = async (req, res) => {
                 ? (data2.companyDetails.description = companyDetails.description)
                 : (error2.details = 'Description required');
 
-            if (req.file) {
-                data2.companyDetails.logo = `/uploads/sellers/${req.file.filename}`;
-            } else {
-                await User.findByIdAndDelete(newUser._id);
-                return res.status(400).json({ message: 'Logo is required for seller profile.' });
-            }
+           
 
             data2.user = newUser._id;
             contactDetails.phone
