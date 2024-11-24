@@ -4,11 +4,7 @@ const GetUserById = async(req,res) =>{
     try{
         const {userId} =req.params;
 
-        const {userType} =req.user;
-
-        if(userType !=='admin' ){
-            return res.status(403).json({message:'User is an authorized'});
-        }
+       
 
         if(!userId){
             return res.status(400).json({message:'Please Provide User ID'});
