@@ -9,7 +9,7 @@ const { multerPropertyImages } = require('../utils/FileUpload');
 const AUTHENTICATJWT = require('../middleware/AUTHENTICATEJWT');
 const ActivateDeactivate = require('../controller/product/Activate&Deactivate');
 
-router.post('/add',AUTHENTICATJWT, multerPropertyImages.array('images', 5),CreateProduct);
+router.post('/add',AUTHENTICATJWT,CreateProduct);
 
 router.get('/get',AUTHENTICATJWT ,GetProduct );
 
