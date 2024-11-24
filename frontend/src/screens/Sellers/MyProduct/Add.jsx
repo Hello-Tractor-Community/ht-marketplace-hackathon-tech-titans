@@ -13,7 +13,6 @@ const SellerProductUpload = () => {
     availability: true,
     typeProduct: "",
     usageHour: "",
-    images: [],
     description: "",
     modelNumber: "",
     brand: "",
@@ -26,6 +25,7 @@ const SellerProductUpload = () => {
     transmissionType: "",
     warranty: "",
   });
+  const [images, setImages] = useState([]);
 
   const [mapCenter, setMapCenter] = useState({ lat: -1.286389, lng: 36.817223 }); // Default to Nairobi
   const [autocomplete, setAutocomplete] = useState(null);
@@ -78,50 +78,69 @@ const SellerProductUpload = () => {
 
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log(productData);
-    try {
-      const response = await post('/api/product/add', productData, { useAuth: true })
-      console.log(response.success)
-      if (response.success === true) {
-        toast.success("Product uploaded successfully!");
-        setProductData({
-          name: "",
-          price: "",
-          location: { latitude: "", longitude: "", placeName: "" },
-          availability: true,
-          typeProduct: "",
-          usageHour: "",
-          images: [],
-          description: "",
-          modelNumber: "",
-          brand: "",
-          year: "",
-          engineType: "",
-          horsepower: "",
-          weight: "",
-          dimensions: { length: "", width: "", height: "" },
-          fuelCapacity: "",
-          transmissionType: "",
-          warranty: "",
-        });
-        navigate('/seller/products')
-      } else {
-        toast.error("Failed to Upload Product, Please try again later!!!")
-      }
-    } catch (error) {
-      toast.error("Failed to Add Upload Product, Please try again later!!!")
-      console.log(error)
+  e.preventDefault();
+
+  // Validate the number of uploaded images
+  if (images.length < 5) {
+    toast.error("You must upload at least 5 images.");
+    return;
+  }
+
+  // Construct FormData
+  const formData = new FormData();
+  Object.entries(productData).forEach(([key, value]) => {
+    if (key === "location" || key === "dimensions") {
+      formData.append(key, JSON.stringify(value)); // Serialize nested objects
+    } else {
+      formData.append(key, value);
     }
-  };
+  });
+
+  // Append images to FormData
+  images.forEach((image) => formData.append("images", image));
+
+  try {
+    const response = await post("/api/product/add", formData, {
+      useAuth: true,
+    });
+
+    if (response.success) {
+      toast.success("Product uploaded successfully!");
+      setProductData({
+        name: "",
+        price: "",
+        location: { latitude: "", longitude: "", placeName: "" },
+        availability: true,
+        typeProduct: "",
+        usageHour: "",
+        description: "",
+        modelNumber: "",
+        brand: "",
+        year: "",
+        engineType: "",
+        horsepower: "",
+        weight: "",
+        dimensions: { length: "", width: "", height: "" },
+        fuelCapacity: "",
+        transmissionType: "",
+        warranty: "",
+      });
+      setImages([]);
+      navigate("/seller/products");
+    } else {
+      toast.error("Failed to upload product, please try again later.");
+    }
+  } catch (error) {
+    toast.error("Failed to upload product, please try again later.");
+    console.error(error);
+  }
+};
+
     
     
     // Handle image files dropped via drag and drop
   const onDrop = useCallback((acceptedFiles) => {
-    setProductData((prevData) => ({
-      ...prevData,
-      images: [...prevData.images, ...acceptedFiles], // Add files directly
-    }));
+    setImages((prevImages) => [...prevImages, ...acceptedFiles]);
   }, []);
     // Dropzone setup
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -252,9 +271,9 @@ const SellerProductUpload = () => {
     </p>
   </div>
 
-  {productData.images.length > 0 && (
+  {images.length > 0 && (
     <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-      {productData.images.map((img, index) => (
+      {images.map((img, index) => (
         <div
           key={index}
           className="relative group bg-white border border-gray-300 rounded-lg shadow-sm overflow-hidden"

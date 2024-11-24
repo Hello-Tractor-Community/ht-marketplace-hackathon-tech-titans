@@ -4,6 +4,8 @@ import SearchAndFilter from "../../../components/SearchAndFilter";
 import useAxios from "../../../Hooks/useAxios";
 import notfound from "../../../assets/no-data-found.svg"
 
+const baseURL = "http://localhost:5500";
+
 const HomePage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
@@ -17,7 +19,7 @@ const HomePage = () => {
   async function fetchProducts() {
     try {
       const response = await get("/api/product/get-2");
-      // console.log(response)
+      console.log(response.products)
 
       if (response.message === "Session ID generated successfully.") {
         localStorage.setItem("session_id", response.sessionId)
@@ -106,7 +108,7 @@ const HomePage = () => {
               className="border border-gray-300 rounded-lg shadow-lg overflow-hidden"
             >
               <img
-                src={product.image}
+                src={`${baseURL}${product?.images[0]}`}
                 alt={product.name}
                 className="h-40 w-full object-cover"
               />
@@ -115,7 +117,7 @@ const HomePage = () => {
                 <p className="text-gray-600 text-sm mb-4"><span className="font-bold">Location:</span> {product.location.placeName}</p>
                 <p className="text-gray-600 text-sm mb-4"><span className="font-bold">Brand:</span> {product.brand}</p>
                 <p className="text-lg font-bold text-sunsetBlaze mb-4">
-                  ${product.price.toLocaleString()}
+                  KSH {product.price.toLocaleString()}
                 </p>
                 <Link
                   to={`/product/${product._id}`}
