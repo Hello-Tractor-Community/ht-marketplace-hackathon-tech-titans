@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const User = require('../../models/User');
-const Agent = require('../../models/Agent'); // Import Agent model
+const Agent = require('../../models/Agent');
 const generateRandomOtp = require('../../utils/GenerateOtp');
 const bcrypt = require('bcrypt');
 const multer = require('multer');
@@ -20,10 +20,12 @@ const upload = multer({ storage });
 
 // Middleware to handle file upload
 const uploadSingleImage = upload.single('logo');
+
 let newUser;
+
 const CreateUser = async (req, res) => {
     const { firstName, lastName, middleName, email, password, userType, companyDetails, contactDetails } = req.body;
-
+    console.log(req.file)
     try {
         console.log('Received request to create user', req.body);
 
@@ -45,7 +47,6 @@ const CreateUser = async (req, res) => {
         userType ? (data.userType = userType) : (errors.userType = 'User Type required');
         data.authToken = generateRandomOtp();
 
-        // If there are errors, return them
         if (Object.keys(errors).length > 0) {
             return res.status(400).json({ message: 'Provide all required information to complete', errors });
         }
@@ -71,14 +72,14 @@ const CreateUser = async (req, res) => {
             companyDetails.description
                 ? (data2.companyDetails.description = companyDetails.description)
                 : (error2.details = 'Description required');
-            // if (req.file) {
-            //     data2.companyDetails.logo = `/uploads/sellers/${req.file.filename}`;
-            //     console.log(data)
-            // } else {
-            //     console.log('image:', req.files);
-            //     await User.findByIdAndDelete(newUser._id);
-            //     return res.status(400).json({ message: 'Logo is required for seller profile.' });
-            // }
+
+            if (req.file) {
+                data2.companyDetails.logo = `/uploads/sellers/${req.file.filename}`;
+            } else {
+                await User.findByIdAndDelete(newUser._id);
+                return res.status(400).json({ message: 'Logo is required for seller profile.' });
+            }
+
             data2.user = newUser._id;
             contactDetails.phone
                 ? (data2.contactDetails.phone = contactDetails.phone)
@@ -86,6 +87,11 @@ const CreateUser = async (req, res) => {
             contactDetails.email
                 ? (data2.contactDetails.email = contactDetails.email)
                 : (error2.email = 'Email required');
+
+            if (Object.keys(error2).length > 0) {
+                await User.findByIdAndDelete(newUser._id);
+                return res.status(400).json({ message: 'Invalid seller details', errors: error2 });
+            }
 
             const seller = await Agent.create(data2);
             console.log('seller', seller);
@@ -96,10 +102,9 @@ const CreateUser = async (req, res) => {
             console.log('customer', customer);
         }
 
-        // Return success response
         res.status(201).json({ message: 'User profile created successfully', data: newUser });
     } catch (error) {
-        await User.findByIdAndDelete(newUser._id);
+        if (newUser) await User.findByIdAndDelete(newUser._id);
         console.error('Error creating user profile:', error.message);
         res.status(500).json({ message: 'Error creating user profile', error: error.message });
     }
