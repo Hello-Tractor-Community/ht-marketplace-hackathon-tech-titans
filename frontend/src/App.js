@@ -16,7 +16,9 @@ import Profile from './screens/users/Profile/Profile';
 import OTPPage from './screens/Auth/Otp';
 import ProtectedRoute from './Routes/ProtectedRoute';
 import NotAuthorizedPage from './screens/Auth/NotAuthorized/NotAuthorized';
+import Cart from './screens/Buyers/Cart/index'
 import { useEffect, useState } from 'react';
+import WishList from './screens/Buyers/WishList';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -50,6 +52,8 @@ const App = () => {
           <Route path="/register" element={<RegistrationPage />} />
           <Route path="/product/:id" element={<ProductDetailsPage />} />
           <Route path="/not-authorized" element={<NotAuthorizedPage />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/wish-list" element={<WishList />} />
 
           {/* Protected Routes */}
           <Route

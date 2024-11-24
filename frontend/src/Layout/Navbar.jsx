@@ -1,20 +1,20 @@
-import { useState,useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import Logo from '../assets/logo.jpg';
+import { useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import Logo from "../assets/logo.jpg";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
-  const storedUser= localStorage.getItem('user_data');
+  const storedUser = localStorage.getItem("user_data");
   const getUserData = async () => {
     try {
       if (storedUser) {
-      setUser(JSON.parse(storedUser))
-    } else {
-      setUser(null)
-    }
+        setUser(JSON.parse(storedUser));
+      } else {
+        setUser(null);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -38,14 +38,16 @@ const Navbar = () => {
 
   const buyerLinks = [
     { to: "/listings", label: "Listings" },
-    { to: "/my-orders", label: "My Orders" },
+    { to: "/cart", label: "My Cart" },
+    { to: "/wish-list", label: "My WishList" },
     { to: "/messages", label: "Messages" },
   ];
 
-  // Links for unauthenticated users
   const guestLinks = [
     { to: "/", label: "Home" },
-    {to:'/listings',label: "Listings"},
+    { to: "/listings", label: "Listings" },
+    { to: "/cart", label: "Cart" },
+    { to: "/wish-list", label: "WishList" },
     { to: "/login", label: "Login" },
     { to: "/register", label: "Register" },
   ];
@@ -56,8 +58,8 @@ const Navbar = () => {
       ? adminLinks
       : user.userType === "seller"
       ? sellerLinks
-      : buyerLinks 
-    : guestLinks; 
+      : buyerLinks
+    : guestLinks;
 
   return (
     <nav className="bg-plum text-white">
@@ -65,22 +67,32 @@ const Navbar = () => {
         {/* Logo */}
         <div className="flex items-center space-x-2">
           <img src={Logo} alt="Hello Tractor Logo" className="h-8 w-auto" />
-          <Link to="/" className="text-xl font-bold">
+          <NavLink to="/" className="text-xl font-bold">
             Hello Tractor
-          </Link>
+          </NavLink>
         </div>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex space-x-6 items-center">
           {userLinks.map((link) => (
-            <Link key={link.to} to={link.to} className="hover:text-sunsetBlaze">
+            <NavLink
+              key={link.to}
+              to={link.to}
+              className={({ isActive }) =>
+                `hover:text-sunsetBlaze ${
+                  isActive
+                    ? "border-b-2 border-sunsetBlaze"
+                    : "border-b-2 border-transparent"
+                } pb-1`
+              }
+            >
               {link.label}
-            </Link>
+            </NavLink>
           ))}
           {user && (
             <div
               className="cursor-pointer rounded-full bg-white w-8 h-8 flex items-center justify-center text-plum font-bold"
-              onClick={() => navigate('/profile')} // Navigate to profile
+              onClick={() => navigate("/profile")}
             >
               {user?.firstName?.charAt(0).toUpperCase() || "U"}
             </div>
@@ -130,16 +142,26 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden bg-plum text-white space-y-2 px-4 py-4">
           {userLinks.map((link) => (
-            <Link key={link.to} to={link.to} className="block hover:text-sunsetBlaze">
+            <NavLink
+              key={link.to}
+              to={link.to}
+              className={({ isActive }) =>
+                `block hover:text-sunsetBlaze ${
+                  isActive
+                    ? "border-b-2 border-sunsetBlaze"
+                    : "border-b-2 border-transparent"
+                } pb-1`
+              }
+            >
               {link.label}
-            </Link>
+            </NavLink>
           ))}
           {user && (
             <div
               className="cursor-pointer rounded-full bg-white w-8 h-8 flex items-center justify-center text-plum font-bold"
               onClick={() => {
-                setIsOpen(false); // Close mobile menu
-                navigate('/profile'); // Navigate to profile
+                setIsOpen(false);
+                navigate("/profile");
               }}
             >
               {user?.firstName?.charAt(0).toUpperCase() || "U"}
