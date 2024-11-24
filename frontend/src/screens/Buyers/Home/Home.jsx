@@ -17,7 +17,7 @@ const HomePage = () => {
   async function fetchProducts() {
     try {
       const response = await get("/api/product/get-2");
-      console.log(response)
+      // console.log(response)
 
       if (response.message === "Session ID generated successfully.") {
         localStorage.setItem("session_id", response.sessionId)

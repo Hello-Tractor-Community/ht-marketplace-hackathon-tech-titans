@@ -1,10 +1,13 @@
-import React, { useState } from "react";
-import { FiSend, FiArrowLeft } from "react-icons/fi"; 
-import { BsEmojiSmile } from "react-icons/bs"; 
-import EmojiPicker from "emoji-picker-react"; 
-import HT_Icons_Orange from '../../../assets/Sunset Blaze/HT_ICONS_ORANGE-42.png'
+import React, { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { FiSend, FiArrowLeft } from "react-icons/fi";
+import { BsEmojiSmile } from "react-icons/bs";
+import EmojiPicker from "emoji-picker-react";
+import HT_Icons_Orange from '../../../assets/Sunset Blaze/HT_ICONS_ORANGE-42.png';
 
 const MessagingPage = () => {
+    const { user_id } = useParams(); // Get user_id from the URL
+    const navigate = useNavigate(); // For navigation
     const [conversations] = useState([
         { id: 1, name: "John Doe", lastMessage: "How about 5 PM?", avatar: "https://via.placeholder.com/50" },
         { id: 2, name: "Jane Smith", lastMessage: "Is the tractor still available?", avatar: "https://via.placeholder.com/50" },
@@ -22,9 +25,17 @@ const MessagingPage = () => {
     const [message, setMessage] = useState("");
     const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
 
-    const handleSelectConversation = (conversationId) => {
-        setSelectedConversation(conversationId);
-    };
+    useEffect(() => {
+        // Set the selected conversation based on the user_id in the URL
+        if (user_id) {
+            const conversation = conversations.find((conv) => conv.id === parseInt(user_id));
+            if (conversation) {
+                setSelectedConversation(conversation.id);
+            }
+        } else {
+            setSelectedConversation(null); // No user selected
+        }
+    }, [user_id, conversations]);
 
     const handleSendMessage = () => {
         if (!message.trim()) return;
@@ -58,7 +69,7 @@ const MessagingPage = () => {
                             key={conversation.id}
                             className={`p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-100 ${selectedConversation === conversation.id ? "bg-gray-200" : ""
                                 }`}
-                            onClick={() => handleSelectConversation(conversation.id)}
+                            onClick={() => navigate(`/message/${conversation.id}`)} // Navigate to the specific conversation
                         >
                             <img src={conversation.avatar} alt={conversation.name} className="w-10 h-10 rounded-full" />
                             <div>
@@ -80,7 +91,7 @@ const MessagingPage = () => {
                         {/* Back Button for Mobile */}
                         <div className="p-4 border-b flex items-center space-x-4">
                             <button
-                                onClick={() => setSelectedConversation(null)}
+                                onClick={() => navigate("/message")} // Navigate back to chat list
                                 className="sm:hidden text-sunsetBlaze focus:outline-none"
                             >
                                 <FiArrowLeft size={24} />
@@ -147,20 +158,19 @@ const MessagingPage = () => {
                         </div>
                     </>
                 ) : (
-                        <div className="flex-1 flex flex-col justify-center items-center h-screen  text-gray-500">
-                            {/* Image */}
-                            <img
-                                src={HT_Icons_Orange} // Replace with your image URL
-                                alt="No conversation selected"
-                                className="mb-4 w-32 h-32" // Adjust the size as needed
-                            />
+                    <div className="flex-1 flex flex-col justify-center items-center h-screen text-gray-500">
+                        {/* Image */}
+                        <img
+                            src={HT_Icons_Orange}
+                            alt="No conversation selected"
+                            className="mb-4 w-32 h-32"
+                        />
 
-                            {/* Text */}
-                            <p className="text-center text-lg">
-                                Select a conversation to start chatting
-                            </p>
-                        </div>
-
+                        {/* Text */}
+                        <p className="text-center text-lg">
+                            Select a conversation to start chatting
+                        </p>
+                    </div>
                 )}
             </div>
         </div>

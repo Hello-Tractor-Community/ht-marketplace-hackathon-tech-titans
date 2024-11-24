@@ -65,6 +65,14 @@ const App = () => {
             }
           />
           <Route
+            path="/message/:user_id"
+            element={
+              <ProtectedRoute user={user}>
+                <MessagingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/listings"
             element={<TractorListing /> }
           />

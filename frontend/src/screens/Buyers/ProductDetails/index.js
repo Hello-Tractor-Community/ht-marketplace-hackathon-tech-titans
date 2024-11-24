@@ -38,6 +38,15 @@ const ProductDetailsPage = () => {
         }
     };
 
+    const handleChat = async (seller) => {
+        const user = await localStorage.getItem("user_data")
+        if (!user) {
+            toast.error("Please log in to chat with seller.");
+            return;
+        }
+        navigate(`/message/${seller}`)
+    }
+
     const handleAddToCart = async() => {
         try {
             const response = await post("/api/cart/create", {
@@ -154,7 +163,7 @@ const ProductDetailsPage = () => {
                 <div className="flex justify-center space-x-4">
                     <button
                         className="bg-sunsetBlaze text-white py-2 px-4 rounded-lg hover:bg-red-600 transition duration-300"
-                        onClick={() => alert("Chat functionality coming soon.")}
+                        onClick={() => handleChat(product.createdBy)}
                     >
                         Chat with Seller
                     </button>

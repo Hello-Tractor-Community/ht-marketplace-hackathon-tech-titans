@@ -20,6 +20,12 @@ const Navbar = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.clear(); // Clear all data from localStorage
+    setUser(null); // Clear user state
+    navigate("/"); // Redirect to home page or login
+  };
+
   useEffect(() => {
     getUserData();
   }, [storedUser]);
@@ -90,12 +96,20 @@ const Navbar = () => {
             </NavLink>
           ))}
           {user && (
+            <>
             <div
               className="cursor-pointer rounded-full bg-white w-8 h-8 flex items-center justify-center text-plum font-bold"
               onClick={() => navigate("/profile")}
             >
               {user?.firstName?.charAt(0).toUpperCase() || "U"}
             </div>
+            <button
+                onClick={handleLogout}
+                className="text-sunsetBlaze px-4 py-2 rounded-lg hover:bg-red-600 hover:text-white transition duration-300"
+              >
+                Logout
+              </button>
+            </>
           )}
         </div>
 
