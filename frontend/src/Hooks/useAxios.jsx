@@ -16,10 +16,9 @@ const useAxios = () => {
         ...(config.useAuth && token ? { Authorization: `Bearer ${token}` } : {}),
       };
 
-      // Add session_id to the Cookie header
-    //   if (sessionId) {
-    //   headers['Cookie'] = `sessionId=${sessionId}`;
-    // }
+      if (data instanceof FormData) {
+        headers['Content-Type'] = 'multipart/form-data';
+      }
 
       // Make the request with axios
       const response = await axios({

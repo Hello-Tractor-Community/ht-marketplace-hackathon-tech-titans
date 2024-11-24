@@ -107,23 +107,40 @@ const RegistrationPage = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+  e.preventDefault();
+  if (!validateForm()) return;
 
-    setIsSubmitting(true);
-    try {
-      console.log(formData)
-      const response = await post(`/api/register/sign-up`, formData);
-      console.log(response)
-      setIsSubmitting(false);
-      handleSendOTP(formData.email); 
-      toast.success(response.message)
-      // navigation('/login') 
-    } catch (e) {
-      setIsSubmitting(false);
-      toast.error(e.response.data.message);
-    }
-  };
+  const formDataToSend = new FormData();
+  formDataToSend.append('firstName', formData.firstName);
+  formDataToSend.append('lastName', formData.lastName);
+  formDataToSend.append('email', formData.email);
+  formDataToSend.append('password', formData.password);
+  formDataToSend.append('userType', formData.userType);
+
+  if (formData.userType === 'seller') {
+    formDataToSend.append('companyDetails[name]', formData.companyDetails.name);
+    formDataToSend.append('companyDetails[description]', formData.companyDetails.description);
+    formDataToSend.append('contactDetails[phone]', formData.contactDetails.phone);
+    formDataToSend.append('contactDetails[email]', formData.contactDetails.email);
+  }
+
+  if (formData.logo) {
+    formDataToSend.append('logo', formData.logo);
+  }
+
+  setIsSubmitting(true);
+  try {
+    const response = await post('/api/register/sign-up', formDataToSend);
+    console.log(response);
+    handleSendOTP(formData.email); 
+    toast.success(response.message);
+  } catch (error) {
+    console.log(error);
+    toast.error(error.response.data.message);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center items-center px-4 py-8">
