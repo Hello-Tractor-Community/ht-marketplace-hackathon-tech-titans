@@ -47,7 +47,7 @@ const CreateUser = async (req, res) => {
         userType ? (data.userType = userType) : (errors.userType = 'User Type required');
         data.authToken = generateRandomOtp();
         if (req.file) {
-            data.logo = `/uploads/sellers/${req.file.filename}`;
+            data.logo = `/uploads/sellers/${Date.now()}${req.file.filename}`;
         } else {
             return res.status(400).json({ message: 'Logo is required for seller profile.' });
         }
