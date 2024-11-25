@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import useAxios from "../../../Hooks/useAxios";
 import { FaTrashAlt } from "react-icons/fa";
 
+const baseURL = "http://localhost:5500";
+
 const Cart = () => {
     const [cart, setCart] = useState([]);
     const { get, del } = useAxios();
@@ -11,8 +13,8 @@ const Cart = () => {
         const fetchCart = async () => {
             try {
                 const response = await get("/api/cart/get");
-                console.log(response)  
-                setCart(response || []);
+                // console.log(response.cartItems);
+                setCart(response.cartItems || []);
             } catch (error) {
                 console.error("Error fetching cart:", error);
             }
@@ -29,46 +31,69 @@ const Cart = () => {
         }
     };
 
-    const calculateTotal = () => {
-        return cart.reduce((total, item) => total + item.totalPrice, 0);
-    };
-
     return (
         <div className="min-h-screen bg-gray-100 p-4">
             <h1 className="text-3xl font-bold text-center mb-6">My Cart</h1>
             {cart.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {cart.map((item) => (
-                        <div key={item.product.id} className="bg-white shadow-lg rounded-lg p-4 relative">
-                            <button
-                                onClick={() => handleRemoveFromCart(item.product.id)}
-                                className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {cart.map((item) => {
+                        const product = item?.product;
+                        const imageUrl = product?.images?.[0]
+                            ? `${baseURL}${product.images[0]}`
+                            : "https://via.placeholder.com/150";
+                        return (
+                            <div
+                                key={item._id}
+                                className="border border-gray-300 rounded-lg shadow-lg overflow-hidden"
                             >
-                                <FaTrashAlt />
-                            </button>
-                            <h2 className="text-xl font-bold mb-2">{item.product.name}</h2>
-                            <p className="text-gray-700">Price: ${item.product.price}</p>
-                            <p className="text-gray-700">Quantity: {item.quantity}</p>
-                            <p className="text-gray-700">Total: ${item.totalPrice}</p>
-                        </div>
-                    ))}
+                                <img
+                                    src={imageUrl}
+                                    alt={product?.name || "Product Image"}
+                                    className="h-40 w-full object-cover"
+                                />
+                                <div className="p-4">
+                                    <h2 className="text-xl font-semibold mb-2">
+                                        {product?.name || "Unnamed Product"}
+                                    </h2>
+                                    <p className="text-gray-600 text-sm mb-4">
+                                        <span className="font-bold">Type:</span>{" "}
+                                        {product?.type || "Not specified"}
+                                    </p>
+                                    <p className="text-gray-600 text-sm mb-4">
+                                        <span className="font-bold">Price:</span>{" "}
+                                        KSH {product?.price?.toLocaleString() || "0"}
+                                    </p>
+                                    <p className="text-gray-600 text-sm mb-4">
+                                        <span className="font-bold">Quantity:</span> {item.quantity}
+                                    </p>
+                                    <p className="text-gray-600 text-sm mb-4">
+                                        <span className="font-bold">Total:</span> KSH{" "}
+                                        {item.totalPrice?.toLocaleString() || "0"}
+                                    </p>
+                                    <Link
+                                        to={`/product/${product?.id}`}
+                                        className="mt-4 inline-block bg-sunsetBlaze text-white py-2 px-4 rounded-lg hover:bg-red-600 transition duration-300"
+                                    >
+                                        View Details
+                                    </Link>
+                                    <button
+                                        onClick={() => handleRemoveFromCart(product.id)}
+                                        className="mt-4 inline-block bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-800 transition duration-300 ml-2"
+                                    >
+                                        <FaTrashAlt />
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
             ) : (
                 <div className="text-center mt-20">
                     <p className="text-gray-500 text-lg">Your cart is empty.</p>
                 </div>
             )}
-
-            {cart.length > 0 && (
-                <div className="text-center mt-8">
-                    <p className="text-lg font-bold">Total: ${calculateTotal()}</p>
-                    <button className="bg-sunsetBlaze text-white py-2 px-4 rounded-lg mt-4 hover:bg-red-600 transition duration-300">
-                        Proceed to Checkout
-                    </button>
-                </div>
-            )}
         </div>
     );
 };
 
-export default Cart
+export default Cart;

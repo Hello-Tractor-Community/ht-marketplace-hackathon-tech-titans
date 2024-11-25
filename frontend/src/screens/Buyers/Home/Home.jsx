@@ -108,7 +108,7 @@ const HomePage = () => {
               className="border border-gray-300 rounded-lg shadow-lg overflow-hidden"
             >
               <img
-                src={`${baseURL}${product?.images[0]}`}
+                src={`${baseURL}${product?.images[0]}` || "https://via.placeholder.com/50"}
                 alt={product.name}
                 className="h-40 w-full object-cover"
               />

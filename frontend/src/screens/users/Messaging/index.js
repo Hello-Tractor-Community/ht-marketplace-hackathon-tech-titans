@@ -161,7 +161,7 @@ const MessagingPage = () => {
                             <div>
                                 <p className="font-medium">{conversation.otherUser.firstName}</p>
                                 <p className="text-sm text-gray-500 truncate">
-                                    {conversation.lastMessage.message || "No messages yet"}
+                                    {conversation?.lastMessage?.message || "No messages yet"}
                                 </p>
                             </div>
                         </li>
