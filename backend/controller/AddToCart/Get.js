@@ -17,10 +17,14 @@ const GetCartItems = async (req, res) => {
             return res.status(404).send('No items found in the cart.');
         }
 
-        res.status(200).json(cartItems);
+        res.status(200).json({
+            cartItems,
+            message:"Successfully queried cart",
+            success:true
+        });
     } catch (error) {
         console.error(error);
-        res.status(500).send('An error occurred while fetching cart items.');
+        res.status(500).json({message:'An error occurred while fetching cart items.', success:false});
     }
 };
 

@@ -9,12 +9,12 @@ const GetWishList = async (req, res) => {
             // Authenticated user: use customer ID from `req.user`
             const customerId = req.user._id;
             wishlist = await WishList.findOne({ customer: customerId })
-                .populate('items.productId', 'name price description'); // Adjust fields as needed
+                .populate('items.productId', 'name price description brand images location'); // Adjust fields as needed
         } else if (req.cookies.sessionId) {
             // Unauthenticated user: use `sessionId` from cookies
             const sessionId = req.cookies.sessionId;
             wishlist = await WishList.findOne({ sessionId })
-                .populate('items.productId', 'name price description'); // Adjust fields as needed
+                .populate('items.productId', 'name price description brand images location'); // Adjust fields as needed
         } else {
             return res.status(401).json({
                 success: false,
