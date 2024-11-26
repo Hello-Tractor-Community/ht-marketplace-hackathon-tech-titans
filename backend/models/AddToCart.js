@@ -21,10 +21,7 @@ const AddToCartModel = new mongoose.Schema(
                 enum: ['tractor', 'spare'],
                 required: true,
             },
-            image: {
-                type: String,
-                required: false,
-            },
+            images:[String]
         },
         quantity: {
             type: Number,

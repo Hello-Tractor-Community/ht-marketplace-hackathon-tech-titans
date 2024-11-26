@@ -1,15 +1,14 @@
 const Message = require('../../models/Message');
 
 const CreateMessage = async (req, res) => {
-    const { receiver, message, sender ,chat} = req.body;
-    console.log(req.body);
+    const { receiver, message, sender, chat } = req.body;
 
     try {
         // Validate input
         if (!sender || !receiver || !message || !chat) {
             return res.status(400).json({
                 success: false,
-                message: 'Sender, receiver, and message are required.',
+                message: 'Sender, receiver, message, and chat are required.',
             });
         }
 
@@ -18,21 +17,22 @@ const CreateMessage = async (req, res) => {
             sender: req.user._id,
             receiver,
             message, // This will be encrypted in the pre-save hook
-            chat
+            chat,
         });
 
         await newMessage.save();
 
-        // Trigger WebSocket event after message creation
-        // Assuming `io` is the socket.io instance, broadcasting to the receiver
-        // io.to(receiver).emit('new_message', {
-        //     id: newMessage._id,
-        //     sender: newMessage.sender,
-        //     receiver: newMessage.receiver,
-        //     message: newMessage.message,
-        //     createdAt: newMessage.createdAt,
-        // });
+        // Emit WebSocket event to the receiver
+        req.io.to(receiver).emit('new_message', {
+            id: newMessage._id,
+            sender: newMessage.sender,
+            receiver: newMessage.receiver,
+            message: newMessage.message,
+            chat: newMessage.chat,
+            createdAt: newMessage.createdAt,
+        });
 
+        // Respond to the sender
         res.status(201).json({
             success: true,
             message: 'Message created successfully.',
@@ -40,11 +40,13 @@ const CreateMessage = async (req, res) => {
                 id: newMessage._id,
                 sender: newMessage.sender,
                 receiver: newMessage.receiver,
+                message: newMessage.message,
+                chat: newMessage.chat,
                 createdAt: newMessage.createdAt,
             },
         });
     } catch (err) {
-        console.error('Error Creating Message', err.message);
+        console.error('Error Creating Message:', err.message);
         res.status(500).json({
             success: false,
             message: 'Error creating message.',
