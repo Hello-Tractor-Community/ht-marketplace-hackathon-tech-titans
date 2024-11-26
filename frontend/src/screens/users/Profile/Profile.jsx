@@ -1,55 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
 const ProfilePage = () => {
   const [tab, setTab] = useState("personaldetails");
-  const [userData, setUserData] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    middleName: "Paul",
-    email: "john.doe@example.com",
-    companyDetails: {
-      name: "FarmTech Inc.",
-      description: "Providing top-quality agricultural equipment.",
-      phone: "1234567890",
-      email: "support@farmtech.com",
-    },
-    servicesOffered: ["Tractor Repair", "Equipment Rentals"],
-  });
+  const [userData, setUserData] = useState(null);
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState(userData);
-
-  // Handle form changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name.includes("companyDetails")) {
-      const key = name.split(".")[1];
-      setFormData((prev) => ({
-        ...prev,
-        companyDetails: {
-          ...prev.companyDetails,
-          [key]: value,
-        },
-      }));
-    } else if (name === "servicesOffered") {
-      setFormData((prev) => ({
-        ...prev,
-        servicesOffered: value.split(",").map((s) => s.trim()),
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+  // Fetch user data from localStorage
+  const getUserData = async () => {
+    try {
+      const userJson = localStorage.getItem("user_data");
+      const user = userJson ? JSON.parse(userJson) : null;
+      setUserData(user);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  // Save changes
-  const handleSave = () => {
-    setUserData(formData);
-    setIsEditing(false);
-  };
+  useEffect(() => {
+    getUserData();
+  }, []);
 
   return (
     <div className="container mx-auto p-6">
@@ -60,20 +30,27 @@ const ProfilePage = () => {
 
       {/* Tabs Navigation */}
       <div className="flex justify-center mb-6">
-        {["Personal Details", "Company Details", "Services", "Activity Logs"].map(
-          (item, index) => (
-            <button
-              key={index}
-              onClick={() => setTab(item.toLowerCase().replace(" ", ""))}
-              className={`px-4 py-2 mx-2 rounded-lg font-medium transition duration-300 ${
-                tab === item.toLowerCase().replace(" ", "")
-                  ? "bg-sunsetBlaze text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-            >
-              {item}
-            </button>
-          )
+        {[
+          { label: "Personal Details", icon: "👤", visibleTo: ["buyer", "seller"] },
+          { label: "Company Details", icon: "🏢", visibleTo: ["seller"] },
+          { label: "Services", icon: "💼", visibleTo: ["seller"] },
+          { label: "Activity Logs", icon: "📜", visibleTo: ["buyer", "seller"] },
+        ].map(
+          (item, index) =>
+            item.visibleTo.includes(userData?.userType) && (
+              <button
+                key={index}
+                onClick={() => setTab(item.label.toLowerCase().replace(" ", ""))}
+                className={`px-4 py-2 mx-2 rounded-lg font-medium transition duration-300 flex items-center ${
+                  tab === item.label.toLowerCase().replace(" ", "")
+                    ? "bg-sunsetBlaze text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                <span className="mr-2 text-lg">{item.icon}</span>
+                {item.label}
+              </button>
+            )
         )}
       </div>
 
@@ -84,73 +61,81 @@ const ProfilePage = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        {/* Personal Details */}
         {tab === "personaldetails" && (
           <div>
             <h2 className="text-xl font-semibold mb-4 text-plum">
               Personal Details
             </h2>
             <p>
-              <strong>First Name:</strong> {userData.firstName}
+              <strong>First Name:</strong> {userData?.firstName}
             </p>
             <p>
-              <strong>Last Name:</strong> {userData.lastName}
+              <strong>Last Name:</strong> {userData?.lastName}
             </p>
             <p>
-              <strong>Middle Name:</strong> {userData.middleName}
+              <strong>Middle Name:</strong> {userData?.middleName}
             </p>
             <p>
-              <strong>Email:</strong> {userData.email}
+              <strong>Email:</strong> {userData?.email}
             </p>
           </div>
         )}
-
-        {/* Company Details */}
         {tab === "companydetails" && (
           <div>
             <h2 className="text-xl font-semibold mb-4 text-plum">
               Company Details
             </h2>
             <p>
-              <strong>Name:</strong> {userData.companyDetails.name}
+              <strong>Name:</strong> {userData?.companyDetails?.name}
             </p>
             <p>
-              <strong>Description:</strong> {userData.companyDetails.description}
+              <strong>Description:</strong> {userData?.companyDetails?.description}
             </p>
             <p>
-              <strong>Phone:</strong> {userData.companyDetails.phone}
+              <strong>Phone:</strong> {userData?.companyDetails?.phone}
             </p>
             <p>
-              <strong>Email:</strong> {userData.companyDetails.email}
+              <strong>Email:</strong> {userData?.companyDetails?.email}
             </p>
           </div>
         )}
-
-        {/* Services Offered */}
         {tab === "services" && (
           <div>
             <h2 className="text-xl font-semibold mb-4 text-plum">
               Services Offered
             </h2>
             <ul className="list-disc pl-6">
-              {userData.servicesOffered.map((service, index) => (
+              {userData?.servicesOffered?.map((service, index) => (
                 <li key={index}>{service}</li>
               ))}
             </ul>
           </div>
         )}
-
-        {/* Activity Logs */}
         {tab === "activitylogs" && (
-          <div>
+          <div className="flex flex-col items-center">
             <h2 className="text-xl font-semibold mb-4 text-plum">
               Activity Logs
             </h2>
-            <ul className="list-disc pl-6">
-              <li>Updated profile on 2024-11-19</li>
-              <li>Uploaded a new product: Tractor A</li>
-              <li>Modified pricing for Plow</li>
-            </ul>
+            <p className="text-gray-600">Coming Soon...</p>
+            {/* Cartoon SVG */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 200 200"
+              className="w-32 h-32 mt-4"
+            >
+              <circle cx="100" cy="100" r="100" fill="#FFD93D" />
+              <circle cx="70" cy="80" r="15" fill="#FFFFFF" />
+              <circle cx="130" cy="80" r="15" fill="#FFFFFF" />
+              <circle cx="70" cy="80" r="8" fill="#000" />
+              <circle cx="130" cy="80" r="8" fill="#000" />
+              <path
+                d="M60 130c20 20 60 20 80 0"
+                fill="none"
+                stroke="#000"
+                strokeWidth="4"
+                strokeLinecap="round"
+              />
+            </svg>
           </div>
         )}
       </motion.div>
@@ -158,113 +143,46 @@ const ProfilePage = () => {
       {/* Edit Profile Button */}
       <div className="mt-6 text-center">
         <button
-          onClick={() => setIsEditing(true)}
-          className="bg-sunsetBlaze text-white py-2 px-6 rounded-lg hover:bg-red-600 transition duration-300"
+          onClick={() => setShowComingSoon(true)}
+          className="bg-sunsetBlaze text-white py-2 px-6 rounded-lg hover:bg-red-600 transition duration-300 flex items-center"
         >
-          Edit Profile
+          <span className="mr-2">✨</span>Edit Profile
         </button>
       </div>
 
-      {/* Edit Modal */}
-      {isEditing && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center py-4">
-          <div className="bg-white rounded-lg p-6 w-11/12 max-w-2xl shadow-lg">
-            <h2 className="text-xl font-bold mb-4 text-plum">Edit Profile</h2>
-            <div className="grid grid-cols-1 gap-4">
-              {/* Personal Details */}
-              <input
-                type="text"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                placeholder="First Name"
-                className="border p-2 rounded-lg"
+      {/* Coming Soon Popup */}
+      {showComingSoon && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-11/12 max-w-md shadow-lg text-center">
+            <h2 className="text-xl font-bold mb-4 text-plum">Coming Soon</h2>
+            <p className="text-gray-700">
+              This feature is under development and will be available soon.
+            </p>
+            {/* Cartoon SVG */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 200 200"
+              className="w-32 h-32 mx-auto mt-4"
+            >
+              <circle cx="100" cy="100" r="100" fill="#6A67CE" />
+              <rect x="60" y="80" width="80" height="40" rx="10" fill="#FFFFFF" />
+              <rect x="80" y="100" width="40" height="20" rx="5" fill="#FFD93D" />
+              <circle cx="90" cy="90" r="5" fill="#000" />
+              <circle cx="110" cy="90" r="5" fill="#000" />
+              <path
+                d="M90 115c5 5 15 5 20 0"
+                fill="none"
+                stroke="#000"
+                strokeWidth="2"
+                strokeLinecap="round"
               />
-              <input
-                type="text"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                placeholder="Last Name"
-                className="border p-2 rounded-lg"
-              />
-              <input
-                type="text"
-                name="middleName"
-                value={formData.middleName}
-                onChange={handleChange}
-                placeholder="Middle Name"
-                className="border p-2 rounded-lg"
-              />
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Email"
-                className="border p-2 rounded-lg"
-              />
-
-              {/* Company Details */}
-              <input
-                type="text"
-                name="companyDetails.name"
-                value={formData.companyDetails.name}
-                onChange={handleChange}
-                placeholder="Company Name"
-                className="border p-2 rounded-lg"
-              />
-              <input
-                type="text"
-                name="companyDetails.description"
-                value={formData.companyDetails.description}
-                onChange={handleChange}
-                placeholder="Company Description"
-                className="border p-2 rounded-lg"
-              />
-              <input
-                type="text"
-                name="companyDetails.phone"
-                value={formData.companyDetails.phone}
-                onChange={handleChange}
-                placeholder="Company Phone"
-                className="border p-2 rounded-lg"
-              />
-              <input
-                type="email"
-                name="companyDetails.email"
-                value={formData.companyDetails.email}
-                onChange={handleChange}
-                placeholder="Company Email"
-                className="border p-2 rounded-lg"
-              />
-
-              {/* Services */}
-              <input
-                type="text"
-                name="servicesOffered"
-                value={formData.servicesOffered.join(", ")}
-                onChange={handleChange}
-                placeholder="Services (comma separated)"
-                className="border p-2 rounded-lg"
-              />
-            </div>
-
-            {/* Modal Actions */}
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={() => setIsEditing(false)}
-                className="bg-gray-300 text-gray-700 py-2 px-4 rounded-lg mr-4 hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                className="bg-sunsetBlaze text-white py-2 px-4 rounded-lg hover:bg-red-600"
-              >
-                Save Changes
-              </button>
-            </div>
+            </svg>
+            <button
+              onClick={() => setShowComingSoon(false)}
+              className="mt-4 bg-sunsetBlaze text-white py-2 px-6 rounded-lg hover:bg-red-600 transition duration-300"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
@@ -273,4 +191,3 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
- 
