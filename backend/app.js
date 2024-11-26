@@ -55,11 +55,14 @@ app.use((req, res, next) => {
     next();
 });
 
+// Create a userSocketMap
+const userSocketMap = new Map();
+
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
 
-    // Save userSocketMap in app.locals for global access
-    socket.request.app.locals.userSocketMap = userSocketMap;
+    // Attach userSocketMap to io instead of app.locals
+    io.userSocketMap = userSocketMap;
 
     // Handle user registration for mapping
     socket.on('register', (userId) => {
@@ -155,7 +158,8 @@ app.use('/api/users', User);
 // Connect to MongoDB and start the server
 const mongoUri = process.env.MONGO_URI || '';
 mongoose.connect(mongoUri,
-    { useNewUrlParser: true, useUnifiedTopology: true 
+    {
+        useNewUrlParser: true, useUnifiedTopology: true
 
     }).then(() => {
         console.log('Connected to database!');
