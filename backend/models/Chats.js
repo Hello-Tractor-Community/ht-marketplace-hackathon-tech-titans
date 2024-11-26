@@ -7,10 +7,18 @@ const ChatModel = new mongoose.Schema(
             required:true,
             ref:'User'
         },
+        user1Image:{
+            type:String,
+            required:false
+        },
         user2:{
             type:mongoose.Types.ObjectId,
             ref:'User',
             required:true
+        },
+        user2Image:{
+            type:String,
+            required:false
         },
         isActiveUser1:{
             type:Boolean,
