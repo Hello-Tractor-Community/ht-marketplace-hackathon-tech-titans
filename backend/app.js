@@ -154,9 +154,10 @@ app.use('/api/users', User);
 
 // Connect to MongoDB and start the server
 const mongoUri = process.env.MONGO_URI || '';
-mongoose
-    .connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => {
+mongoose.connect(mongoUri,
+    { useNewUrlParser: true, useUnifiedTopology: true 
+
+    }).then(() => {
         console.log('Connected to database!');
         server.listen(5500, () => {
             console.log('Server running on port 5500');
