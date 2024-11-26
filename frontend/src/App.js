@@ -21,6 +21,7 @@ import { useEffect, useState } from 'react';
 import WishList from './screens/Buyers/WishList';
 import UserManagement from './screens/Admin/Users';
 import ProductManagement from './screens/Admin/ProductManagement';
+import ComingSoonSVG from './screens/users/ComingSoon';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -56,6 +57,8 @@ const App = () => {
           <Route path="/not-authorized" element={<NotAuthorizedPage />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/wish-list" element={<WishList />} />
+          <Route path="/dashboard" element={<ComingSoonSVG />} />
+          <Route path="/settings" element={<ComingSoonSVG />} />
 
           {/* Protected Routes */}
           <Route

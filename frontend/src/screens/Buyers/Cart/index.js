@@ -76,12 +76,12 @@ const Cart = () => {
                                     >
                                         View Details
                                     </Link>
-                                    <button
+                                    {/* <button
                                         onClick={() => handleRemoveFromCart(product.id)}
                                         className="mt-4 inline-block bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-800 transition duration-300 ml-2"
                                     >
                                         <FaTrashAlt />
-                                    </button>
+                                    </button> */}
                                 </div>
                             </div>
                         );
