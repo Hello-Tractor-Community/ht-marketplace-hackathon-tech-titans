@@ -2,9 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FiSend, FiArrowLeft } from "react-icons/fi";
 import { BsEmojiSmile } from "react-icons/bs";
+import { io } from "socket.io-client";
+import { toast} from "react-toastify";
 import EmojiPicker from "emoji-picker-react";
 import useAxios from "../../../Hooks/useAxios";
 import HT_Icons_Orange from '../../../assets/Sunset Blaze/HT_ICONS_ORANGE-42.png';
+const SOCKET_SERVER_URL = "http://localhost:5500";
 
 const MessagingPage = () => {
     const { user_id } = useParams(); // Get user_id from the URL
@@ -17,6 +20,7 @@ const MessagingPage = () => {
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
     const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
+    const [socket, setSocket] = useState(null);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user_data");
@@ -36,6 +40,65 @@ const MessagingPage = () => {
             openChat(user_id);
         }
     }, [user_id, user]);
+
+    useEffect(() => {
+        if (user) {
+            // Establish WebSocket connection
+            const newSocket = io(SOCKET_SERVER_URL, {
+                query: { userId: user.id }, // Attach user ID for server-side use
+            });
+
+            // Log when connected
+            newSocket.on('connect', () => {
+                console.log(`Socket connected with ID: ${newSocket.id}`);
+                // Register user after connecting
+                newSocket.emit('register', user.id);
+            });
+
+            // Handle disconnection
+            newSocket.on('disconnect', () => {
+                console.log('Socket disconnected');
+            });
+
+            setSocket(newSocket);
+
+            return () => {
+                newSocket.disconnect();
+            };
+        }
+    }, [user]);
+
+
+    useEffect(() => {
+        if (socket && selectedChat) {
+            // Listen for new messages
+            socket.on("new_message", (newMessage) => {
+                // If the new message is for the selected chat, update messages
+                if (newMessage.chat === selectedChat) {
+                    setMessages((prevMessages) => [...prevMessages, newMessage]);
+                } else {
+                    // Notify user of a new message
+                    const senderName = conversations.find(
+                        (conv) => conv._id === newMessage.chat
+                    )?.otherUser.firstName;
+
+                    toast.info(`New message from ${senderName || "someone"}`, {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                    });
+                }
+            });
+
+            return () => {
+                socket.off("new_message");
+            };
+        }
+    }, [socket, selectedChat, conversations]);
 
     // Fetch all chats
     const fetchChats = async () => {

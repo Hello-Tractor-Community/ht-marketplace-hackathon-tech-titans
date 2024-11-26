@@ -22,15 +22,22 @@ const CreateMessage = async (req, res) => {
 
         await newMessage.save();
 
-        // Emit WebSocket event to the receiver
-        req.io.to(receiver).emit('new_message', {
-            id: newMessage._id,
-            sender: newMessage.sender,
-            receiver: newMessage.receiver,
-            message: newMessage.message,
-            chat: newMessage.chat,
-            createdAt: newMessage.createdAt,
-        });
+        // Retrieve the receiver's socket ID
+        const recipientSocketId = req.io.userSocketMap.get(receiver);
+
+        if (recipientSocketId) {
+            // Emit WebSocket event to the receiver
+            req.io.to(recipientSocketId).emit('new_message', {
+                id: newMessage._id,
+                sender: newMessage.sender,
+                receiver: newMessage.receiver,
+                message: newMessage.message,
+                chat: newMessage.chat,
+                createdAt: newMessage.createdAt,
+            });
+        } else {
+            console.log(`User ${receiver} is not connected.`);
+        }
 
         // Respond to the sender
         res.status(201).json({

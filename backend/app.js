@@ -8,8 +8,7 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 const passport = require('passport');
 const session = require('express-session');
-const { v4: uuidv4 } = require('uuid'); // For generating session IDs
-const WebSocket = require('ws'); // Import WebSocket
+const { v4: uuidv4 } = require('uuid');
 process.env.TZ = 'Africa/Nairobi';
 require('dotenv').config();
 
@@ -52,65 +51,66 @@ const io = new Server(server, {
 
 app.use((req, res, next) => {
     req.io = io;
+    req.io.userSocketMap = userSocketMap; // Attach userSocketMap to req.io
     next();
 });
 
 // Create a userSocketMap
 const userSocketMap = new Map();
-
+io.userSocketMap = userSocketMap;
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
 
-    // Attach userSocketMap to io instead of app.locals
-    io.userSocketMap = userSocketMap;
-
-    // Handle user registration for mapping
+    // Handle user registration
     socket.on('register', (userId) => {
+        if (!userId) {
+            console.log(`Registration failed: Missing userId for socket ${socket.id}`);
+            return;
+        }
+
+        if (userSocketMap.has(userId)) {
+            const existingSocketId = userSocketMap.get(userId);
+            if (existingSocketId !== socket.id) {
+                console.log(`Updating connection for user: ${userId}`);
+            }
+        }
+
         userSocketMap.set(userId, socket.id);
         console.log(`User registered: ${userId} -> ${socket.id}`);
         console.log('Current userSocketMap:', Array.from(userSocketMap.entries()));
     });
 
-    // Initialize WebSocket client connection
-    const ws = new WebSocket('ws://localhost:5600');
+    // Handle new message event
+    socket.on('send_message', (data) => {
+        const { receiver, sender, message } = data;
 
-    ws.on('open', () => {
-        console.log('WebSocket connection to ws://localhost:5600 established');
+        if (!receiver || !sender || !message) {
+            console.log('Invalid message payload:', data);
+            return;
+        }
+
+        const recipientSocketId = userSocketMap.get(receiver);
+        if (recipientSocketId) {
+            io.to(recipientSocketId).emit('new_message', data);
+            console.log(`Message sent from ${sender} to ${receiver}`);
+        } else {
+            console.log(`User ${receiver} is not connected. Current userSocketMap:`, Array.from(userSocketMap.entries()));
+        }
     });
 
-    ws.on('message', (message) => {
-        console.log(`Message received from WebSocket server: ${message}`);
-    });
-
-    ws.on('error', (error) => {
-        console.error('WebSocket error:', error.message);
-    });
-
-    ws.on('close', () => {
-        console.log('WebSocket connection closed');
-    });
-
-    // Handle disconnection of the client
+    // Handle disconnection
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
 
-        // Remove user from userSocketMap
         const userId = [...userSocketMap.entries()].find(([_, id]) => id === socket.id)?.[0];
         if (userId) {
             userSocketMap.delete(userId);
             console.log(`User mapping removed: ${userId}`);
         }
 
-        // Log the current state of userSocketMap
         console.log('Current userSocketMap after disconnect:', Array.from(userSocketMap.entries()));
-
-        // Close WebSocket connection if still open
-        if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
-            ws.close();
-        }
     });
 });
-
 
 
 // Configure session
@@ -132,14 +132,13 @@ app.use((req, res, next) => {
         const sessionId = uuidv4();
         res.cookie('sessionId', sessionId, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Set secure cookies in production
+            secure: process.env.NODE_ENV === 'production',
             maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
         });
         console.log(`Generated new session ID: ${sessionId}`);
     } else {
         res.locals.sessionId = req.cookies.sessionId; // Use existing sessionId
     }
-
     next();
 });
 
@@ -157,19 +156,17 @@ app.use('/api/users', User);
 
 // Connect to MongoDB and start the server
 const mongoUri = process.env.MONGO_URI || '';
-mongoose.connect(mongoUri,
-    {
-        useNewUrlParser: true, useUnifiedTopology: true
-
-    }).then(() => {
-        console.log('Connected to database!');
-        server.listen(5500, () => {
-            console.log('Server running on port 5500');
-            console.log('Application running on http://localhost:5500');
-        });
-    })
-    .catch((err) => {
-        console.error('Connection Failed!', err.message);
+mongoose.connect(mongoUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).then(() => {
+    console.log('Connected to database!');
+    server.listen(5500, () => {
+        console.log('Server running on port 5500');
+        console.log('Application running on http://localhost:5500');
     });
+}).catch((err) => {
+    console.error('Connection Failed!', err.message);
+});
 
 module.exports = app;
