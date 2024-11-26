@@ -119,7 +119,6 @@ app.use(
         secret: process.env.SESSION_SECRET || 'defaultsecret',
         resave: false,
         saveUninitialized: false,
-        store: MongoStore.create({ mongoUrl: MONGO_URI }),
     })
 );
 
