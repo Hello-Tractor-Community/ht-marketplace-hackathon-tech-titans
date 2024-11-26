@@ -182,6 +182,22 @@ Contributions are not accepted unless explicitly approved. If you wish to contri
 This project is licensed for commercial use only under specific agreements. Usage for commercial purposes requires explicit approval from the project owner.
 
 ---
+## Demo video
+- **demo video**: [hello tractor Tech Titans video](https://www.loom.com/share/8e96a803c08d467a92723852093c8bce?sid=10d83b4d-7aeb-4005-a197-97c2150158bd)
+
+## Live Application URL
+- **live link**: [hello tractor Tech Titans link](https://ht-marketplace-hackathon-tech-titans-uy7a.vercel.app/)
+
+## Lesson learned
+- how use to use google map
+- implement websocket
+-to implement live chat
+
+## Challenges
+- deployment of mongo database
+- implementation of live chat
+- 
+
 
 ## Contact
 For inquiries, reach out to:
