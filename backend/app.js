@@ -119,6 +119,7 @@ app.use(
         secret: process.env.SESSION_SECRET || 'defaultsecret',
         resave: false,
         saveUninitialized: false,
+        store: MongoStore.create({ mongoUrl: MONGO_URI }),
     })
 );
 
@@ -156,10 +157,7 @@ app.use('/api/users', User);
 
 // Connect to MongoDB and start the server
 const mongoUri = process.env.MONGO_URI || '';
-mongoose.connect(mongoUri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-}).then(() => {
+mongoose.connect(mongoUri).then(() => {
     console.log('Connected to database!');
     server.listen(5500, () => {
         console.log('Server running on port 5500');
