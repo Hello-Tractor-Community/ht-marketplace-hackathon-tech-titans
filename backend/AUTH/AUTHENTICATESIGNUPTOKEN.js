@@ -70,7 +70,7 @@ router.post('/:email/:token', async (req, res) => {
         // Send Welcome Email with Embedded Image
         const imagePath = path.resolve(__dirname, '../assets/welcome.jpg'); // Correct path to the image
         const mailOptions = {
-            from: `"Your Platform Name" <${EMAIL_USER}>`,
+            from: `"Hello Tractor" <${EMAIL_USER}>`,
             to: updatedUser.email,
             subject: 'Welcome to Our Platform!',
             html: generateEmailHTML(updatedUser.email),

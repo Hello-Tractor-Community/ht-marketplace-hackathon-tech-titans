@@ -36,7 +36,7 @@ const generateEmailHTML = (name, token) => `
 // Send Verification Email
 const sendVerificationEmail = async (user) => {
     const mailOptions = {
-        from: `"Your App Name" <${EMAIL_USER}>`, // Ensure this aligns with your domain
+        from: `"Hello Tractor" <${EMAIL_USER}>`, // Ensure this aligns with your domain
         to: user.email,
         subject: 'Verify Your Account',
         text: `Hello ${user.firstName},\n\nThank you for signing up. Please verify your account using the following token: ${user.authToken}.\n\nBest Regards,\nThe Team`,
