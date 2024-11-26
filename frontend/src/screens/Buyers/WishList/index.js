@@ -2,21 +2,26 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import useAxios from "../../../Hooks/useAxios";
 import { FaTrashAlt } from "react-icons/fa";
+import LoadingSpinner from "../../../components/LoadingSpinner";
 
-const baseURL = "http://localhost:5500";
+const baseURL = "https://ht-marketplace-hackathon-tech-titans.onrender.com";
 
 const Wishlist = () => {
     const [wishlist, setWishlist] = useState([]);
+    const [loading, setLoading] = useState(false);
     const { get, del } = useAxios();
 
     useEffect(() => {
         const fetchWishlist = async () => {
+            setLoading(true);
             try {
                 const response = await get("/api/wishlist/get");
                 // console.log(response.wishlist.items);
                 setWishlist(response.wishlist.items || []);
+                setLoading(false);
             } catch (error) {
                 console.error("Error fetching wishlist:", error);
+                setLoading(false);
             }
         };
         fetchWishlist();
@@ -31,7 +36,9 @@ const Wishlist = () => {
         }
     };
 
-    return (
+    return loading ? (
+        <LoadingSpinner message="Fetching data, please wait..." />
+    ) : (
         <div className="min-h-screen bg-gray-100 p-4">
             <h1 className="text-3xl font-bold text-center mb-6">My Wishlist</h1>
             {wishlist.length > 0 ? (

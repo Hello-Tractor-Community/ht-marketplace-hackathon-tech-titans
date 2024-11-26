@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import SearchAndFilter from "../../../components/SearchAndFilter";
 import useAxios from "../../../Hooks/useAxios";
 import notfound from "../../../assets/no-data-found.svg"
+import LoadingSpinner from "../../../components/LoadingSpinner";
 
-const baseURL = "http://localhost:5500";
+const baseURL = "https://ht-marketplace-hackathon-tech-titans.onrender.com";
 
 const HomePage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -15,19 +16,22 @@ const HomePage = () => {
     location: "",
   });
   const { get } = useAxios();
+    const [loading, setLoading] = useState(false);
 
   async function fetchProducts() {
     try {
+      setLoading(true);
       const response = await get("/api/product/get-2");
-      console.log(response.products)
 
       if (response.message === "Session ID generated successfully.") {
         localStorage.setItem("session_id", response.sessionId)
       }
 
       setProducts(response.products || []);
+      setLoading(false)
     } catch (err) {
       console.log(err);
+      setLoading(false)
     }
   }
 
@@ -86,7 +90,9 @@ const HomePage = () => {
 
 
 
-  return (
+  return loading ? (
+        <LoadingSpinner message="Fetching data, please wait..." />
+    ) : (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-center mb-8">All Products</h1>
 

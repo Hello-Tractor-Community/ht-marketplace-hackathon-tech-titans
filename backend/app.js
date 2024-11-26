@@ -36,7 +36,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+app.use(cors({ origin: 'https://ht-marketplace-hackathon-tech-titans-uy7a.vercel.app', credentials: true }));
 
 const server = createServer(app);
 

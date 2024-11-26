@@ -4,7 +4,7 @@ import { FaArrowLeft, FaHeart, FaShoppingCart } from "react-icons/fa";
 import useAxios from "../../../Hooks/useAxios";
 import { toast } from "react-toastify";
 
-const baseURL = "http://localhost:5500";
+const baseURL = "https://ht-marketplace-hackathon-tech-titans.onrender.com";
 
 const ProductDetailsPage = () => {
     const { id } = useParams();

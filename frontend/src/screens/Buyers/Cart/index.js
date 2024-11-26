@@ -2,21 +2,26 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import useAxios from "../../../Hooks/useAxios";
 import { FaTrashAlt } from "react-icons/fa";
+import LoadingSpinner from "../../../components/LoadingSpinner";
 
-const baseURL = "http://localhost:5500";
+const baseURL = "https://ht-marketplace-hackathon-tech-titans.onrender.com";
 
 const Cart = () => {
     const [cart, setCart] = useState([]);
+    const [loading, setLoading] = useState(false);
     const { get, del } = useAxios();
 
     useEffect(() => {
         const fetchCart = async () => {
+            setLoading(true)
             try {
                 const response = await get("/api/cart/get");
                 // console.log(response.cartItems);
                 setCart(response.cartItems || []);
+                setLoading(false);
             } catch (error) {
                 console.error("Error fetching cart:", error);
+                setLoading(false);
             }
         };
         fetchCart();
@@ -31,7 +36,9 @@ const Cart = () => {
         }
     };
 
-    return (
+    return loading ? (
+        <LoadingSpinner message="Fetching data, please wait..." />
+    ) : (
         <div className="min-h-screen bg-gray-100 p-4">
             <h1 className="text-3xl font-bold text-center mb-6">My Cart</h1>
             {cart.length > 0 ? (

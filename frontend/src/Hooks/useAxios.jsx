@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import axios from 'axios';
 
 const useAxios = () => {
-  const baseURL = 'http://localhost:5500';
+  const baseURL = 'https://ht-marketplace-hackathon-tech-titans.onrender.com';
 
   const fetchData = useCallback(
     async (url, method = 'GET', data = null, config = {}) => {

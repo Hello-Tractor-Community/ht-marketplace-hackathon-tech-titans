@@ -52,7 +52,7 @@ const SellerProductTable = () => {
   const handleAction = async(action, product) => {
     switch (action) {
       case "view":
-        console.log("Viewing product:", product);
+        navigate(`/product/${product._id}`)
         break;
       case "edit":
         console.log("Editing product:", product);

@@ -38,7 +38,7 @@ const SearchAndFilter = ({
                 className="px-4 py-2 border rounded-lg"
             >
                 <option value="">All Prices</option>
-                <option value="low">Up to $10,000</option>
+                <option value="low">Up to KSH 10,000</option>
                 <option value="medium">$10,001 - $30,000</option>
                 <option value="high">Above $30,000</option>
             </select>

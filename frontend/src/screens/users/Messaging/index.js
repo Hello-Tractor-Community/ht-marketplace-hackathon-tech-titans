@@ -7,7 +7,7 @@ import { toast} from "react-toastify";
 import EmojiPicker from "emoji-picker-react";
 import useAxios from "../../../Hooks/useAxios";
 import HT_Icons_Orange from '../../../assets/Sunset Blaze/HT_ICONS_ORANGE-42.png';
-const SOCKET_SERVER_URL = "http://localhost:5500";
+const SOCKET_SERVER_URL = "https://ht-marketplace-hackathon-tech-titans.onrender.com";
 
 const MessagingPage = () => {
     const { user_id } = useParams(); // Get user_id from the URL
