@@ -17,6 +17,7 @@ const HomePage = () => {
   });
   const { get } = useAxios();
     const [loading, setLoading] = useState(false);
+  const [maxPrice, setMaxPrice] = useState("");
 
   async function fetchProducts() {
     try {
@@ -55,9 +56,8 @@ const HomePage = () => {
     setSearchTerm("");
     setFilters({
       type: "",
-      priceRange: "",
-      location: "",
-    });
+    });    
+    setMaxPrice("");
   };
 
   const filteredProducts = products.filter((product) => {
@@ -71,13 +71,8 @@ const HomePage = () => {
     product.description.toLowerCase().includes(lowerSearchTerm);
 
   const matchesType = !filters.type || product.type === filters.type;
-  const matchesPriceRange =
-    !filters.priceRange ||
-    (filters.priceRange === "low" && product.price <= 10000) ||
-    (filters.priceRange === "medium" &&
-      product.price > 10000 &&
-      product.price <= 30000) ||
-    (filters.priceRange === "high" && product.price > 30000);
+  const matchesPrice =
+      !maxPrice || parseFloat(product.price) <= parseFloat(maxPrice);
 
   const matchesLocation =
     !filters.location ||
@@ -85,8 +80,12 @@ const HomePage = () => {
       ?.toLowerCase()
       .includes(filters.location.toLowerCase().trim());
 
-  return matchesSearchTerm && matchesType && matchesPriceRange && matchesLocation;
-});
+  return matchesSearchTerm && matchesType && matchesPrice && matchesLocation;
+  });
+  
+   const handleMaxPriceChange = (value) => {
+    setMaxPrice(value);
+  };
 
 
 
@@ -103,6 +102,8 @@ const HomePage = () => {
         filters={filters}
         onFilterChange={handleFilterChange}
         onClearFilters={handleClearFilters}
+        maxPrice={maxPrice}
+        onMaxPriceChange={handleMaxPriceChange}
       />
 
       {/* Conditional Rendering */}

@@ -6,6 +6,8 @@ const SearchAndFilter = ({
     filters,
     onFilterChange,
     onClearFilters,
+    maxPrice,
+    onMaxPriceChange,
 }) => {
     return (
         <div className="mb-8 flex flex-wrap gap-4 items-center">
@@ -31,30 +33,15 @@ const SearchAndFilter = ({
             </select>
 
             {/* Price Range Filter */}
-            <select
-                name="priceRange"
-                value={filters.priceRange}
-                onChange={(e) => onFilterChange(e)}
+            <input
+                type="number"
+                value={maxPrice}
+                onChange={(e) => onMaxPriceChange(e.target.value)}
+                placeholder="Enter maximum price"
                 className="px-4 py-2 border rounded-lg"
-            >
-                <option value="">All Prices</option>
-                <option value="low">Up to KSH 10,000</option>
-                <option value="medium">$10,001 - $30,000</option>
-                <option value="high">Above $30,000</option>
-            </select>
+            />
 
-            {/* Location Filter */}
-            <select
-                name="location"
-                value={filters.location}
-                onChange={(e) => onFilterChange(e)}
-                className="px-4 py-2 border rounded-lg"
-            >
-                <option value="">All Locations</option>
-                <option value="Nairobi">Nairobi</option>
-                <option value="Mombasa">Mombasa</option>
-                <option value="Kisumu">Kisumu</option>
-            </select>
+            
 
             {/* Clear Filters Button */}
             <button
