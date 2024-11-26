@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
@@ -10,12 +11,26 @@ const EMAIL_USER = process.env.EMAIL_USER || 'your_email@example.com';
 const EMAIL_PASS = process.env.EMAIL_PASS || 'your_email_password';
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail', // You can use other services like Outlook, Yahoo, etc.
+    service: 'gmail',
     auth: {
         user: EMAIL_USER,
         pass: EMAIL_PASS,
     },
 });
+
+// HTML Template with Embedded Image
+const generateEmailHTML = (name) => `
+    <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <h2>Welcome to Our Platform, ${name}!</h2>
+            <p>We are thrilled to have you on board. Your account has been successfully verified. Below is an image to get you started:</p>
+            <img src="cid:welcomeImage" alt="Welcome Image" style="width: 100%; max-width: 600px; margin: 20px 0;">
+            <p>Enjoy your experience with us!</p>
+            <p>Best Regards,</p>
+            <p>The Team</p>
+        </body>
+    </html>
+`;
 
 router.post('/:email/:token', async (req, res) => {
     try {
@@ -52,32 +67,42 @@ router.post('/:email/:token', async (req, res) => {
         const tokenPayload = { id: updatedUser._id, email: updatedUser.email };
         const jwtToken = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '84h' });
 
-        // Send Welcome Email
+        // Send Welcome Email with Embedded Image
+        const imagePath = path.resolve(__dirname, '../assets/welcome.jpg'); // Correct path to the image
         const mailOptions = {
-            from: EMAIL_USER,
+            from: `"Your Platform Name" <${EMAIL_USER}>`,
             to: updatedUser.email,
             subject: 'Welcome to Our Platform!',
-            text: `Hello ${updatedUser.email},\n\nWelcome to our platform! Your account has been successfully verified.\n\nEnjoy your experience!\n\nBest Regards,\nThe Team`,
+            html: generateEmailHTML(updatedUser.email),
+            attachments: [
+                {
+                    filename: 'welcome.jpg',
+                    path: imagePath,
+                    cid: 'welcomeImage', // Content ID to reference in the email HTML
+                },
+            ],
         };
 
+        // Send the email
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
                 console.error('Error sending email:', error);
                 return res.status(500).json({ message: 'Error sending welcome email' });
-            } else {
-                console.log('Email sent:', info.response);
             }
-        });
 
-        res.status(200).json({
-            message: 'User token verified successfully and welcome email sent',
-            token: jwtToken,
-            user: {
-                id: updatedUser._id,
-                email: updatedUser.email,
-                userType: updatedUser.userType,
-                isActive: updatedUser.isActive,
-            },
+            console.log('Email sent:', info.response);
+
+            // Respond after email is successfully sent
+            res.status(200).json({
+                message: 'User token verified successfully and welcome email sent',
+                token: jwtToken,
+                user: {
+                    id: updatedUser._id,
+                    email: updatedUser.email,
+                    userType: updatedUser.userType,
+                    isActive: updatedUser.isActive,
+                },
+            });
         });
     } catch (err) {
         console.error('Error verifying token:', err);

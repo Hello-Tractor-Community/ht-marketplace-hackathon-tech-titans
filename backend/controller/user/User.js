@@ -6,6 +6,52 @@ const bcrypt = require('bcrypt');
 const multer = require('multer');
 const path = require('path');
 const Customer = require('../../models/Customer');
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+
+const EMAIL_USER = process.env.EMAIL_USER || 'your_email@example.com';
+const EMAIL_PASS = process.env.EMAIL_PASS || 'your_email_password';
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail', // Use a custom SMTP server for better control if needed
+    auth: {
+        user: EMAIL_USER,
+        pass: EMAIL_PASS,
+    },
+});
+
+// HTML Email Template
+const generateEmailHTML = (name, token) => `
+    <html>
+        <body>
+            <h2>Hello ${name},</h2>
+            <p>Thank you for signing up. Please verify your account using the token below:</p>
+            <p style="font-size: 18px; font-weight: bold;">${token}</p>
+            <p>If you did not create this account, please ignore this email.</p>
+            <p>Best Regards,<br>The Team</p>
+        </body>
+    </html>
+`;
+
+// Send Verification Email
+const sendVerificationEmail = async (user) => {
+    const mailOptions = {
+        from: `"Your App Name" <${EMAIL_USER}>`, // Ensure this aligns with your domain
+        to: user.email,
+        subject: 'Verify Your Account',
+        text: `Hello ${user.firstName},\n\nThank you for signing up. Please verify your account using the following token: ${user.authToken}.\n\nBest Regards,\nThe Team`,
+        html: generateEmailHTML(user.firstName, user.authToken), // HTML content
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email sent:', info.response);
+    } catch (error) {
+        console.error('Error sending email:', error);
+        throw new Error('Verification email failed to send');
+    }
+};
+
 
 // Multer configuration for image upload
 const storage = multer.diskStorage({
@@ -104,7 +150,10 @@ const CreateUser = async (req, res) => {
             console.log('customer', customer);
         }
 
-        res.status(201).json({ message: 'User profile created successfully', data: newUser });
+        await sendVerificationEmail(newUser);
+
+        res.status(201).json({ message: 'User profile created successfully. Verification email sent.', data: newUser });
+        // res.status(201).json({ message: 'User profile created successfully', data: newUser });
     } catch (error) {
         if (newUser) await User.findByIdAndDelete(newUser._id);
         console.error('Error creating user profile:', error.message);
