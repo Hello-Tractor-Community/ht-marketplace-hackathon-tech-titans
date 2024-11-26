@@ -190,3 +190,11 @@ For inquiries, reach out to:
 )
 - **GitHub**: [Stanley Muiruri](https://github.com/stanleywanjau/)
 
+- **Email**: irungud220@gmail.com
+- **LInkedin**: [Dennis Irungu](https://www.linkedin.com/in/dennis-irungu-aa88b32a8/)
+
+- **GitHub**: [Dennis Irungu](https://github.com/irungudennisnganga/)
+
+
+
+
